@@ -1,0 +1,281 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .about-page {
+        padding: 56px 0 84px;
+    }
+
+    .about-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+            radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 38%),
+            linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(18px);
+        padding: 64px;
+        margin-bottom: 32px;
+    }
+
+    .about-hero::after {
+        content: "";
+        position: absolute;
+        right: -90px;
+        top: -60px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .about-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+        color: rgba(248, 245, 240, 0.62);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .about-kicker::before {
+        content: "";
+        width: 28px;
+        height: 1px;
+        background: rgba(248, 245, 240, 0.42);
+    }
+
+    .about-title {
+        max-width: 720px;
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 5vw, 4.8rem);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+        color: #f8f5f0;
+    }
+
+    .about-title .accent {
+        font-style: italic;
+        color: #c8c4be;
+    }
+
+    .about-copy {
+        max-width: 660px;
+        margin-top: 22px;
+        color: rgba(248, 245, 240, 0.68);
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 24px;
+    }
+
+    .about-card {
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(14px);
+        padding: 32px;
+    }
+
+    .about-card h2 {
+        margin: 0 0 14px;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: #f8f5f0;
+    }
+
+    .about-card p {
+        margin: 0;
+        color: rgba(248, 245, 240, 0.66);
+        line-height: 1.75;
+    }
+
+    .about-list {
+        display: grid;
+        gap: 18px;
+        margin-top: 24px;
+    }
+
+    .about-point {
+        padding: 18px 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .about-point strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #f8f5f0;
+        font-size: 0.92rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .about-point span {
+        color: rgba(248, 245, 240, 0.64);
+        line-height: 1.65;
+        font-size: 0.94rem;
+    }
+
+    .about-quote {
+        margin-top: 24px;
+        padding: 22px 24px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    }
+
+    .about-quote p {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: #f8f5f0;
+    }
+
+    .about-quote span {
+        display: block;
+        margin-top: 12px;
+        color: rgba(248, 245, 240, 0.56);
+        font-size: 0.76rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .about-stats {
+        display: grid;
+        gap: 16px;
+    }
+
+    .about-stat {
+        padding: 22px 24px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    }
+
+    .about-stat-number {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        color: #f8f5f0;
+    }
+
+    .about-stat-label {
+        margin-top: 6px;
+        color: rgba(248, 245, 240, 0.6);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.74rem;
+    }
+
+    .about-cta {
+        margin-top: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 24px;
+        border-radius: 999px;
+        background: #f8f5f0;
+        color: #0a0a0b;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+        .about-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-hero {
+            padding: 42px 28px;
+        }
+    }
+</style>
+
+<section class="about-page">
+    <div class="container">
+        <div class="about-hero">
+            <div class="about-kicker">About CinePick</div>
+            <h1 class="about-title">
+                Helping movie nights feel
+                <span class="accent">more personal</span>
+                and less random
+            </h1>
+            <p class="about-copy">
+                CinePick was built to make choosing a movie easier. Instead of endless scrolling, we bring together
+                search, curated genres, AI-assisted suggestions, and your personal wishlist so you can move from
+                “what should we watch?” to “let’s start this one.”
+            </p>
+        </div>
+
+        <div class="about-grid">
+            <article class="about-card">
+                <h2>What we do</h2>
+                <p>
+                    We turn movie discovery into a calmer, cleaner experience. CinePick helps you explore titles,
+                    revisit ideas you want to watch later, and quickly narrow down choices based on mood or genre.
+                </p>
+
+                <div class="about-list">
+                    <div class="about-point">
+                        <strong>Discover Faster</strong>
+                        <span>Browse random picks, search for specific titles, or jump into genre-based collections.</span>
+                    </div>
+                    <div class="about-point">
+                        <strong>Save What Matters</strong>
+                        <span>Use your wishlist to keep track of films you do not want to lose between sessions.</span>
+                    </div>
+                    <div class="about-point">
+                        <strong>Use AI Naturally</strong>
+                        <span>Describe a vibe or story type and let CinePick translate that into movie suggestions.</span>
+                    </div>
+                </div>
+
+                <div class="about-quote">
+                    <p>"Great movie nights usually start with one clear feeling. CinePick helps you find the film that matches it."</p>
+                    <span>The CinePick Experience</span>
+                </div>
+            </article>
+
+            <aside class="about-stats">
+                <div class="about-card">
+                    <h2>Why CinePick</h2>
+                    <p>
+                        The goal is simple: less decision fatigue, more watching. Every part of the product is designed
+                        to feel elegant, fast, and easy to come back to.
+                    </p>
+                    <a href="{% url 'home' %}" class="about-cta">Start Exploring</a>
+                </div>
+
+                <div class="about-stat">
+                    <div class="about-stat-number">1</div>
+                    <div class="about-stat-label">Place for search and saves</div>
+                </div>
+
+                <div class="about-stat">
+                    <div class="about-stat-number">24/7</div>
+                    <div class="about-stat-label">Movie inspiration whenever you need it</div>
+                </div>
+
+                <div class="about-stat">
+                    <div class="about-stat-number">AI</div>
+                    <div class="about-stat-label">Support for mood-based discovery</div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .directors-page {
+        padding: 56px 0 84px;
+    }
+
+    .directors-hero {
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+            radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 30%),
+            linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(16px);
+        padding: 46px;
+        margin-bottom: 34px;
+    }
+
+    .directors-kicker {
+        display: inline-flex;
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(248, 245, 240, 0.64);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+    }
+
+    .directors-title {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 5vw, 4.4rem);
+        line-height: 1.02;
+        color: #f8f5f0;
+    }
+
+    .directors-copy {
+        max-width: 760px;
+        margin-top: 16px;
+        color: rgba(248, 245, 240, 0.68);
+        font-size: 0.98rem;
+        line-height: 1.8;
+    }
+
+    .directors-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(210px, 1fr));
+        gap: 18px;
+    }
+
+    .director-card {
+        min-height: 250px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(10px);
+        padding: 24px 22px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.25s cubic-bezier(.4, 0, .2, 1), border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .director-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.22);
+        box-shadow: 0 22px 56px rgba(0, 0, 0, 0.42);
+    }
+
+    .director-top {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .director-photo {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        object-fit: cover;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+    }
+
+    .director-photo-fallback {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        color: #f8f5f0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .director-badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(248, 245, 240, 0.6);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .director-name {
+        margin: 18px 0 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.35rem;
+        line-height: 1.15;
+        color: #f8f5f0;
+    }
+
+    .director-role {
+        margin: 10px 0 0;
+        color: rgba(248, 245, 240, 0.72);
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    .director-samples {
+        margin-top: 18px;
+        color: rgba(248, 245, 240, 0.56);
+        font-size: 0.78rem;
+        line-height: 1.6;
+    }
+
+    .director-link {
+        margin-top: 18px;
+        color: #f8f5f0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 1280px) {
+        .directors-grid {
+            grid-template-columns: repeat(3, minmax(220px, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .directors-grid {
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+        }
+
+        .directors-hero {
+            padding: 34px 26px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .directors-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="directors-page">
+    <div class="container">
+        <div class="directors-hero">
+            <span class="directors-kicker">Cinema Voices</span>
+            <h1 class="directors-title">Directors &amp; Creators</h1>
+            <p class="directors-copy">
+                Browse the filmmakers and storytellers you picked, then open each page to explore their movies and signature work.
+            </p>
+        </div>
+
+        <div class="directors-grid">
+            {% for director in director_cards %}
+            <a href="{% url 'director_view' director.slug %}" class="director-card">
+                <div>
+                    <div class="director-top">
+                        {% if director.image_url %}
+                        <img src="{{ director.image_url }}" alt="{{ director.name }}" class="director-photo" loading="lazy">
+                        {% else %}
+                        <div class="director-photo-fallback">{{ director.name|first }}</div>
+                        {% endif %}
+                        <span class="director-badge">
+                            {% if director.person_type == "creator" %}Creator{% else %}Director{% endif %}
+                        </span>
+                    </div>
+                    <h3 class="director-name">{{ director.name }}</h3>
+                    <p class="director-role">{{ director.role }}</p>
+                    <p class="director-samples">{{ director.titles|slice:":3"|join:", " }}</p>
+                </div>
+                <span class="director-link">View Titles</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

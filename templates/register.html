@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section style="padding: 80px 0;">
+  <div class="container" style="max-width: 560px;">
+    <div style="border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; background: rgba(255,255,255,0.04); backdrop-filter: blur(18px); padding: 36px;">
+      <p style="font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(248,245,240,0.55);">Join CinePick</p>
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 2.6rem; line-height: 1.1; margin: 12px 0 10px;">Create your account</h1>
+      <p style="color: rgba(248,245,240,0.6); line-height: 1.7;">Save your place in CinePick and jump back into personalized movie discovery anytime.</p>
+
+      {% if error %}
+      <div style="margin-top: 20px; padding: 14px 16px; border-radius: 16px; background: rgba(255,90,90,0.1); border: 1px solid rgba(255,90,90,0.25); color: #ffd4d4;">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="post" style="margin-top: 24px; display: grid; gap: 16px;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div>
+          <label for="id_username" style="display: block; margin-bottom: 8px; color: rgba(248,245,240,0.72);">Username</label>
+          <input id="id_username" name="username" type="text" value="{{ form_data.username }}" required style="width: 100%; height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: #f8f5f0;">
+        </div>
+        <div>
+          <label for="id_email" style="display: block; margin-bottom: 8px; color: rgba(248,245,240,0.72);">Email</label>
+          <input id="id_email" name="email" type="email" value="{{ form_data.email }}" required style="width: 100%; height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: #f8f5f0;">
+        </div>
+        <div>
+          <label for="id_password" style="display: block; margin-bottom: 8px; color: rgba(248,245,240,0.72);">Password</label>
+          <input id="id_password" name="password" type="password" required style="width: 100%; height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: #f8f5f0;">
+        </div>
+        <div>
+          <label for="id_confirm_password" style="display: block; margin-bottom: 8px; color: rgba(248,245,240,0.72);">Confirm Password</label>
+          <input id="id_confirm_password" name="confirm_password" type="password" required style="width: 100%; height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: #f8f5f0;">
+        </div>
+        <button type="submit" style="height: 52px; border: 0; border-radius: 999px; background: #f8f5f0; color: #0a0a0b; font-weight: 700; cursor: pointer;">Create Account</button>
+      </form>
+
+      <p style="margin-top: 18px; color: rgba(248,245,240,0.6);">
+        Already have an account? <a href="{% url 'login' %}" style="color: #f8f5f0;">Login</a>.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

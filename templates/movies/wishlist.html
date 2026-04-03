@@ -1,0 +1,270 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .wishlist-shell {
+        padding-top: 52px;
+        padding-bottom: 72px;
+    }
+
+    .wishlist-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .wishlist-title {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.4rem, 4vw, 3.6rem);
+        font-weight: 800;
+        line-height: 1.08;
+        color: #f8f5f0;
+    }
+
+    .wishlist-title .accent {
+        font-style: italic;
+        color: #c8c4be;
+    }
+
+    .wishlist-subtitle {
+        margin: 10px 0 0;
+        color: rgba(248, 245, 240, 0.6);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .wishlist-link {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(248, 245, 240, 0.6);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .wishlist-link svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+    }
+
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+        gap: 18px;
+    }
+
+    .wishlist-card {
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(8px);
+        min-height: 360px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wishlist-art {
+        position: relative;
+        aspect-ratio: 2/3;
+        background: #1a1a1f;
+        overflow: hidden;
+    }
+
+    .wishlist-art::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.72) 100%);
+    }
+
+    .wishlist-poster {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .wishlist-fallback {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        color: rgba(248, 245, 240, 0.65);
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    .wishlist-copy {
+        padding: 14px 16px 18px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .wishlist-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #f8f5f0;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 3px 9px;
+        border-radius: 6px;
+        width: fit-content;
+        margin-bottom: 8px;
+    }
+
+    .wishlist-movie-title {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #f8f5f0;
+        line-height: 1.25;
+    }
+
+    .wishlist-meta {
+        margin: 4px 0 0;
+        color: rgba(248, 245, 240, 0.6);
+        font-size: 0.75rem;
+    }
+
+    .wishlist-overview {
+        margin: 8px 0 0;
+        color: rgba(248, 245, 240, 0.6);
+        font-size: 0.82rem;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-weight: 300;
+    }
+
+    .wishlist-actions {
+        margin-top: auto;
+        padding-top: 14px;
+    }
+
+    .wishlist-btn {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8f5f0;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 14px;
+    }
+
+    .wishlist-empty {
+        padding: 36px;
+        min-height: auto;
+    }
+
+    @media (max-width: 1180px) {
+        .wishlist-grid {
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+        }
+    }
+
+    @media (max-width: 840px) {
+        .wishlist-head {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .wishlist-grid {
+            grid-template-columns: repeat(2, minmax(160px, 1fr));
+        }
+    }
+
+    @media (max-width: 560px) {
+        .wishlist-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<section class="section">
+    <div class="container wishlist-shell">
+        <div class="wishlist-head">
+            <div>
+                <h1 class="wishlist-title">Your <span class="accent">Wishlist</span></h1>
+                <p class="wishlist-subtitle">
+                    Keep the movies you want to come back to in one place.
+                </p>
+            </div>
+            <a href="{% url 'home' %}" class="wishlist-link">
+                Keep exploring
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+        {% if wishlist_items %}
+        <div class="wishlist-grid">
+            {% for item in wishlist_items %}
+            <article class="wishlist-card">
+                <div class="wishlist-art">
+                    {% if item.poster_url %}
+                    <img src="{{ item.poster_url }}" alt="{{ item.title }}" class="wishlist-poster" loading="lazy">
+                    {% else %}
+                    <div class="wishlist-fallback">{{ item.title }}</div>
+                    {% endif %}
+                </div>
+                <div class="wishlist-copy">
+                    <div class="wishlist-rating">&#9733; {{ item.vote_average|floatformat:1 }}</div>
+                    <h2 class="wishlist-movie-title">{{ item.title }}</h2>
+                    <p class="wishlist-meta">{{ item.release_year }}</p>
+                    <p class="wishlist-overview">{{ item.overview|default:"No summary saved for this movie yet." }}</p>
+                    <div class="wishlist-actions">
+                        <form method="post" action="{% url 'remove_from_wishlist' item.id %}" class="wishlist-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'wishlist' %}">
+                            <button type="submit" class="wishlist-btn">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="wishlist-card wishlist-empty">
+            <h2 class="wishlist-movie-title">Your wishlist is empty</h2>
+            <p class="wishlist-overview" style="display: block; -webkit-line-clamp: unset; overflow: visible; margin-top: 10px;">
+                Save movies from the main catalog or AI suggestions page and they will show up here.
+            </p>
+            <div class="wishlist-actions" style="margin-top: 20px; max-width: 220px;">
+                <a href="{% url 'home' %}" class="wishlist-btn">Browse Movies</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

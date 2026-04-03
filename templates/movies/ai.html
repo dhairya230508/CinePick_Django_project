@@ -1,0 +1,802 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+        --ai-bg: #07070a;
+        --ai-bg-soft: #11111a;
+        --ai-card: rgba(255, 255, 255, 0.05);
+        --ai-card-strong: rgba(255, 255, 255, 0.08);
+        --ai-border: rgba(255, 255, 255, 0.11);
+        --ai-border-strong: rgba(255, 255, 255, 0.18);
+        --ai-text: #f7f4ff;
+        --ai-muted: rgba(247, 244, 255, 0.68);
+        --ai-dim: rgba(247, 244, 255, 0.48);
+        --ai-purple: #a855f7;
+        --ai-purple-2: #7c3aed;
+        --ai-purple-3: #c084fc;
+        --ai-gold: #f6d365;
+    }
+
+    body {
+        background:
+            radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 28%),
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 26%),
+            linear-gradient(180deg, #09090d 0%, #060609 100%);
+        color: var(--ai-text);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .ai-page {
+        position: relative;
+        padding: 84px 0 96px;
+        overflow: hidden;
+    }
+
+    .ai-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 18% 14%, rgba(192, 132, 252, 0.16), transparent 24%),
+            radial-gradient(circle at 82% 10%, rgba(56, 189, 248, 0.10), transparent 22%);
+        pointer-events: none;
+    }
+
+    .ai-shell {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ai-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+        gap: 28px;
+        align-items: stretch;
+        margin-bottom: 38px;
+    }
+
+    .ai-panel,
+    .ai-side-panel,
+    .ai-summary,
+    .ai-card {
+        border: 1px solid var(--ai-border);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.36);
+        backdrop-filter: blur(14px);
+    }
+
+    .ai-panel {
+        border-radius: 34px;
+        padding: 34px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ai-panel::after {
+        content: '';
+        position: absolute;
+        inset: auto -80px -90px auto;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.22), transparent 68%);
+        pointer-events: none;
+    }
+
+    .ai-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(192, 132, 252, 0.24);
+        background: rgba(168, 85, 247, 0.12);
+        color: #ecd9ff;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ai-eyebrow svg,
+    .ai-chip svg,
+    .ai-meta svg,
+    .ai-actions a svg,
+    .ai-actions button svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        flex-shrink: 0;
+    }
+
+    .ai-title {
+        margin: 20px 0 0;
+        max-width: 11ch;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(3rem, 5vw, 4.8rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        color: var(--ai-text);
+    }
+
+    .ai-title .accent {
+        font-style: italic;
+        color: #dcc0ff;
+    }
+
+    .ai-copy {
+        max-width: 590px;
+        margin: 18px 0 0;
+        color: var(--ai-muted);
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+
+    .ai-form {
+        margin-top: 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+    }
+
+    .ai-input {
+        min-height: 64px;
+        padding: 0 22px;
+        border-radius: 999px;
+        border: 1px solid var(--ai-border-strong);
+        background: rgba(7, 7, 10, 0.58);
+        color: var(--ai-text);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.98rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .ai-input::placeholder {
+        color: var(--ai-dim);
+    }
+
+    .ai-input:focus {
+        border-color: rgba(192, 132, 252, 0.55);
+        box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.14);
+        background: rgba(7, 7, 10, 0.72);
+    }
+
+    .ai-submit {
+        min-height: 64px;
+        padding: 0 28px;
+        border: 1px solid rgba(192, 132, 252, 0.45);
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--ai-purple) 0%, var(--ai-purple-2) 100%);
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+        box-shadow: 0 18px 38px rgba(124, 58, 237, 0.36);
+    }
+
+    .ai-submit:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+    .ai-prompt-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .ai-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--ai-border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ai-muted);
+        font-size: 0.84rem;
+        line-height: 1;
+    }
+
+    .ai-side-panel {
+        border-radius: 30px;
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 22px;
+    }
+
+    .ai-side-label {
+        color: var(--ai-dim);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ai-side-title {
+        margin: 10px 0 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        line-height: 1.06;
+        color: var(--ai-text);
+    }
+
+    .ai-side-copy {
+        margin: 12px 0 0;
+        color: var(--ai-muted);
+        font-size: 0.94rem;
+        line-height: 1.75;
+    }
+
+    .ai-side-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .ai-side-item {
+        padding: 16px 18px;
+        border-radius: 22px;
+        border: 1px solid var(--ai-border);
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .ai-side-item strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--ai-text);
+        font-size: 0.96rem;
+    }
+
+    .ai-side-item span {
+        color: var(--ai-muted);
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    .ai-summary {
+        border-radius: 28px;
+        padding: 22px 24px;
+        margin-bottom: 30px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .ai-summary-badge {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(59, 130, 246, 0.22));
+        color: #f2e8ff;
+    }
+
+    .ai-summary-label {
+        color: var(--ai-dim);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ai-summary-value {
+        margin-top: 6px;
+        color: var(--ai-text);
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+    .ai-summary-count {
+        color: var(--ai-muted);
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+    }
+
+    .ai-alert {
+        margin-bottom: 20px;
+        padding: 16px 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(248, 113, 113, 0.28);
+        background: rgba(127, 29, 29, 0.26);
+        color: #ffd0d0;
+        font-size: 0.92rem;
+        line-height: 1.6;
+    }
+
+    .ai-section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 26px;
+    }
+
+    .ai-section-head h2 {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2rem, 3vw, 2.7rem);
+        letter-spacing: -0.03em;
+    }
+
+    .ai-section-head p {
+        margin: 8px 0 0;
+        color: var(--ai-muted);
+        font-size: 0.95rem;
+    }
+
+    .ai-results-count {
+        color: var(--ai-dim);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .ai-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 22px;
+    }
+
+    .ai-card {
+        border-radius: 28px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+    }
+
+    .ai-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(192, 132, 252, 0.28);
+        box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
+    }
+
+    .ai-poster-wrap {
+        position: relative;
+        aspect-ratio: 2 / 3;
+        background: #15151d;
+        overflow: hidden;
+    }
+
+    .ai-poster-wrap::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0;
+        height: 42%;
+        background: linear-gradient(180deg, transparent, rgba(7, 7, 10, 0.82));
+        pointer-events: none;
+    }
+
+    .ai-poster {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .ai-poster-fallback {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        text-align: center;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem;
+        color: var(--ai-muted);
+        background:
+            radial-gradient(circle at top, rgba(192, 132, 252, 0.16), transparent 40%),
+            linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    }
+
+    .ai-card-copy {
+        padding: 18px 18px 20px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .ai-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--ai-border);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--ai-muted);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        width: fit-content;
+    }
+
+    .ai-card-title {
+        margin: 14px 0 0;
+        font-size: 1.45rem;
+        line-height: 1.15;
+        color: var(--ai-text);
+    }
+
+    .ai-card-year {
+        margin-top: 8px;
+        color: var(--ai-dim);
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+
+    .ai-card-overview {
+        margin: 12px 0 0;
+        color: var(--ai-muted);
+        font-size: 0.94rem;
+        line-height: 1.7;
+    }
+
+    .ai-actions {
+        margin-top: auto;
+        padding-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .ai-action-form {
+        width: 100%;
+    }
+
+    .ai-btn {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 999px;
+        border: 1px solid var(--ai-border-strong);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ai-text);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.84rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 0 16px;
+        cursor: pointer;
+        transition: transform 0.18s, border-color 0.18s, background 0.18s;
+    }
+
+    .ai-btn:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .ai-btn.watched {
+        background: linear-gradient(90deg, var(--ai-purple) 0%, var(--ai-purple-2) 100%);
+        border-color: rgba(192, 132, 252, 0.5);
+        box-shadow: 0 14px 30px rgba(124, 58, 237, 0.28);
+    }
+
+    .ai-btn.watched:hover {
+        border-color: rgba(216, 180, 254, 0.7);
+        background: linear-gradient(90deg, #b268ff 0%, #9565ff 100%);
+    }
+
+    .ai-btn.saved {
+        background: rgba(246, 211, 101, 0.12);
+        border-color: rgba(246, 211, 101, 0.22);
+        color: #ffe8a6;
+    }
+
+    .ai-btn:disabled {
+        cursor: default;
+        opacity: 1;
+    }
+
+    .ai-empty {
+        padding: 42px 30px;
+        border-radius: 28px;
+        border: 1px dashed var(--ai-border-strong);
+        background: rgba(255, 255, 255, 0.03);
+        text-align: center;
+        color: var(--ai-muted);
+    }
+
+    .ai-empty h3 {
+        margin: 0 0 12px;
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--ai-text);
+    }
+
+    .ai-empty p {
+        margin: 0 auto;
+        max-width: 560px;
+        font-size: 0.96rem;
+        line-height: 1.8;
+    }
+
+    @media (max-width: 1080px) {
+        .ai-hero {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .ai-page {
+            padding: 58px 0 72px;
+        }
+
+        .ai-panel,
+        .ai-side-panel,
+        .ai-summary {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .ai-form {
+            grid-template-columns: 1fr;
+        }
+
+        .ai-submit {
+            width: 100%;
+        }
+
+        .ai-summary {
+            grid-template-columns: 1fr;
+            justify-items: start;
+        }
+
+        .ai-section-head {
+            align-items: start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+<section class="ai-page">
+    <div class="container ai-shell">
+        <div class="ai-hero">
+            <div class="ai-panel">
+                <span class="ai-eyebrow">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3l1.9 5.2L19 10l-5.1 1.8L12 17l-1.9-5.2L5 10l5.1-1.8L12 3z" />
+                    </svg>
+                    AI Movie Search
+                </span>
+
+                <h1 class="ai-title">Describe a <span class="accent">vibe</span>. Let CinePick find the movie.</h1>
+                <p class="ai-copy">
+                    Type a mood, theme, or story shape in plain language. CinePick turns that into search-ready keywords and surfaces quick movie matches you can save right away.
+                </p>
+
+                <form method="get" class="ai-form">
+                    <input
+                        type="text"
+                        name="query"
+                        value="{{ query }}"
+                        placeholder="Try: emotional sci-fi movie with hope and big visuals"
+                        class="ai-input"
+                    >
+                    <button type="submit" class="ai-submit">Get Suggestions</button>
+                </form>
+
+                <div class="ai-prompt-row">
+                    <span class="ai-chip">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 12h16" />
+                            <path d="M12 4l8 8-8 8" />
+                        </svg>
+                        dark mystery with twists
+                    </span>
+                    <span class="ai-chip">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 12h16" />
+                            <path d="M12 4l8 8-8 8" />
+                        </svg>
+                        funny road trip movie
+                    </span>
+                    <span class="ai-chip">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 12h16" />
+                            <path d="M12 4l8 8-8 8" />
+                        </svg>
+                        stylish action with revenge
+                    </span>
+                </div>
+            </div>
+
+            <aside class="ai-side-panel">
+                <div>
+                    <div class="ai-side-label">How It Works</div>
+                    <h2 class="ai-side-title">A better starting point than guessing titles.</h2>
+                    <p class="ai-side-copy">
+                        You describe the feeling. CinePick translates it into simpler discovery terms and sends those to OMDb for fast matches.
+                    </p>
+                </div>
+
+                <div class="ai-side-grid">
+                    <div class="ai-side-item">
+                        <strong>1. Write naturally</strong>
+                        <span>Use mood, pacing, genre, character energy, or the kind of ending you want.</span>
+                    </div>
+                    <div class="ai-side-item">
+                        <strong>2. AI extracts keywords</strong>
+                        <span>The prompt is condensed into a shorter search phrase that works better with OMDb.</span>
+                    </div>
+                    <div class="ai-side-item">
+                        <strong>3. Save fast</strong>
+                        <span>Mark titles as watched or drop them into your wishlist straight from the results.</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        {% if keywords %}
+        <div class="ai-summary">
+            <div class="ai-summary-badge">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3l1.9 5.2L19 10l-5.1 1.8L12 17l-1.9-5.2L5 10l5.1-1.8L12 3z" />
+                </svg>
+            </div>
+            <div>
+                <div class="ai-summary-label">AI Keywords</div>
+                <div class="ai-summary-value">{{ keywords }}</div>
+            </div>
+            <div class="ai-summary-count">{{ movies|length }} result{{ movies|length|pluralize }}</div>
+        </div>
+        {% endif %}
+
+        {% if api_error %}
+        <div class="ai-alert">{{ api_error }}</div>
+        {% endif %}
+
+        <div class="ai-section-head">
+            <div>
+                <h2>Suggested Movies</h2>
+                <p>
+                    {% if query %}
+                    Results inspired by "{{ query }}".
+                    {% else %}
+                    Start with a feeling, theme, or story idea to generate movie suggestions.
+                    {% endif %}
+                </p>
+            </div>
+            {% if movies %}
+            <div class="ai-results-count">{{ movies|length }} picks ready to explore</div>
+            {% endif %}
+        </div>
+
+        {% if movies %}
+        <div class="ai-grid">
+            {% for movie in movies %}
+            <article class="ai-card">
+                <div class="ai-poster-wrap">
+                    {% if movie.poster_url %}
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster" class="ai-poster" loading="lazy">
+                    {% else %}
+                    <div class="ai-poster-fallback">{{ movie.title }}</div>
+                    {% endif %}
+                </div>
+                <div class="ai-card-copy">
+                    <span class="ai-meta">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 2v4" />
+                            <path d="M16 2v4" />
+                            <path d="M3 9h18" />
+                            <rect x="3" y="4" width="18" height="18" rx="3" />
+                        </svg>
+                        {{ movie.release_year }}
+                    </span>
+
+                    <h3 class="ai-card-title">{{ movie.title }}</h3>
+                    <div class="ai-card-year">AI match from OMDb</div>
+                    <p class="ai-card-overview">{{ movie.overview }}</p>
+
+                    <div class="ai-actions">
+                        {% if user.is_authenticated %}
+                        {% if movie.is_watched %}
+                        <button type="button" class="ai-btn watched" disabled>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 13l4 4L19 7" />
+                            </svg>
+                            Watched
+                        </button>
+                        {% else %}
+                        <form method="post" action="{% url 'add_to_watched' %}" class="ai-action-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="imdb_id" value="{{ movie.imdb_id }}">
+                            <input type="hidden" name="title" value="{{ movie.title }}">
+                            <input type="hidden" name="poster_url" value="{{ movie.poster_url|default:'' }}">
+                            <input type="hidden" name="release_year" value="{{ movie.release_year }}">
+                            <input type="hidden" name="overview" value="{{ movie.overview }}">
+                            <input type="hidden" name="vote_average" value="{{ movie.vote_average }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="ai-btn watched">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M1.5 12s3.8-6 10.5-6 10.5 6 10.5 6-3.8 6-10.5 6S1.5 12 1.5 12z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                Mark as Watched
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if movie.is_in_watch_later %}
+                        <button type="button" class="ai-btn saved" disabled>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 3h12v18l-6-4-6 4z" />
+                            </svg>
+                            Saved to Wishlist
+                        </button>
+                        {% else %}
+                        <form method="post" action="{% url 'add_to_wishlist' %}" class="ai-action-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="imdb_id" value="{{ movie.imdb_id }}">
+                            <input type="hidden" name="title" value="{{ movie.title }}">
+                            <input type="hidden" name="poster_url" value="{{ movie.poster_url|default:'' }}">
+                            <input type="hidden" name="release_year" value="{{ movie.release_year }}">
+                            <input type="hidden" name="overview" value="{{ movie.overview }}">
+                            <input type="hidden" name="vote_average" value="{{ movie.vote_average }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="ai-btn">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M6 3h12v18l-6-4-6 4z" />
+                                </svg>
+                                Add to Wishlist
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% else %}
+                        <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="ai-btn watched">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M1.5 12s3.8-6 10.5-6 10.5 6 10.5 6-3.8 6-10.5 6S1.5 12 1.5 12z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            Mark as Watched
+                        </a>
+                        <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="ai-btn">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 3h12v18l-6-4-6 4z" />
+                            </svg>
+                            Add to Wishlist
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="ai-empty">
+            <h3>Turn a feeling into a film list.</h3>
+            <p>
+                Try prompts like "slow-burn detective movie with atmosphere", "uplifting sports drama", or "mind-bending sci-fi with emotion" to get better matches.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
