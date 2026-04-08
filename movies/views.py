@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import random
 import re
-from datetime import date
+from datetime import date, datetime
 from functools import lru_cache
 from typing import Any
 from urllib.parse import quote, urlencode
@@ -278,6 +278,158 @@ DIRECTOR_CONFIG: dict[str, dict[str, Any]] = {
     },
 }
 
+FRANCHISE_CONFIG: dict[str, dict[str, Any]] = {
+    "marvel": {
+        "name": "Marvel Movies",
+        "kicker": "Official Release Order",
+        "collection_kind": "release_order",
+        "ai_target_count": 40,
+        "expected_type": "movie",
+        "count_label": "films",
+        "description": "All officially released Marvel movies in theatrical release order. This page excludes one-shots, shorts, and unrelated OMDb search matches.",
+        "hero_copy": "A curated Marvel page built for clean browsing. Instead of a raw search for \"marvel,\" CinePick shows only the released Marvel movies in release order.",
+        "empty_message": "No Marvel movie titles are available for this page right now.",
+    },
+    "dc": {
+        "name": "DC Movies",
+        "kicker": "Official Release Order",
+        "collection_kind": "release_order",
+        "ai_target_count": 20,
+        "expected_type": "movie",
+        "count_label": "films",
+        "description": "Officially released DC Universe movies in theatrical release order, curated for clean browsing without noisy keyword matches.",
+        "hero_copy": "This DC page mirrors the Marvel experience with a curated theatrical release-order lineup instead of a raw search for \"dc comics.\"",
+        "empty_message": "No DC movie titles are available for this page right now.",
+    },
+    "bollywood": {
+        "name": "Bollywood Movies",
+        "kicker": "Curated Hindi Cinema",
+        "collection_kind": "curated",
+        "ai_target_count": 24,
+        "expected_type": "movie",
+        "count_label": "films",
+        "description": "A curated Bollywood collection focused on real Hindi feature films instead of literal title matches for the word Bollywood.",
+        "hero_copy": "This page is built to show Bollywood movies, not movies that just happen to be named \"Bollywood.\" CinePick now opens a curated Hindi cinema collection here.",
+        "empty_message": "No Bollywood movie titles are available for this page right now.",
+    },
+    "south-indian": {
+        "name": "Tamil & Telugu Movies",
+        "kicker": "Curated South Indian Cinema",
+        "collection_kind": "curated",
+        "ai_target_count": 20,
+        "expected_type": "movie",
+        "count_label": "films",
+        "description": "A curated collection of Tamil and Telugu feature films built to avoid noisy OMDb keyword matches.",
+        "hero_copy": "This page focuses on Tamil and Telugu movies you actually want to browse, instead of search results that only loosely match a phrase like \"telugu tamil movie.\"",
+        "empty_message": "No Tamil and Telugu movie titles are available for this page right now.",
+    },
+    "indian-drama": {
+        "name": "Indian Drama Movies",
+        "kicker": "Curated Indian Drama",
+        "collection_kind": "curated",
+        "ai_target_count": 20,
+        "expected_type": "movie",
+        "count_label": "films",
+        "description": "A curated Indian drama collection spanning acclaimed character-driven films across Hindi and regional cinema.",
+        "hero_copy": "This page highlights Indian drama movies worth exploring, rather than literal search matches for the phrase \"indian drama movie.\"",
+        "empty_message": "No Indian drama movie titles are available for this page right now.",
+    },
+    "cinepick-best-movies": {
+        "name": "CinePick-Best Movies",
+        "kicker": "Top 10 Movies",
+        "collection_kind": "curated",
+        "expected_type": "movie",
+        "count_label": "films",
+        "collection_badge": "Top rated movies you should watch",
+        "description": "A handpicked CinePick top 10 built from personal all-time favorites across sci-fi, crime, drama, and modern classics.",
+        "hero_copy": "A curated top 10 movie list from CinePick, designed as a clean ranking of high-impact films worth watching and revisiting.",
+        "empty_message": "No top-rated movie titles are available for this page right now.",
+        "home_anchor": "cinepick-picks",
+        "ai_target_count": 10,
+    },
+    "cinepick-best-series": {
+        "name": "CinePick-Best Series",
+        "kicker": "Top 10 Series",
+        "collection_kind": "curated",
+        "expected_type": "series",
+        "count_label": "series",
+        "collection_badge": "top rated series you should watch",
+        "description": "A curated CinePick series ranking built around prestige drama, thrillers, sci-fi, and standout long-form storytelling.",
+        "hero_copy": "top rated series you should watch",
+        "empty_message": "No top-rated series titles are available for this page right now.",
+        "home_anchor": "cinepick-picks",
+        "ai_target_count": 10,
+    },
+}
+
+STATIC_PAGE_CONTENT: dict[str, dict[str, Any]] = {
+    "contact": {
+        "kicker": "Get In Touch",
+        "title": "Contact CinePick",
+        "intro": "CinePick is a movie discovery project built to make browsing feel cleaner, faster, and more personal. Use this page as the main place for feedback, bug reports, or collaboration inquiries.",
+        "sections": [
+            {
+                "heading": "Project Feedback",
+                "body": "If you notice broken movie data, search issues, or design bugs, the best path is to report them through your project repository or your preferred feedback channel.",
+            },
+            {
+                "heading": "Collaboration",
+                "body": "CinePick can also work as a portfolio or team project. You can customize this section later with your own email address, LinkedIn profile, or project inquiry form.",
+            },
+            {
+                "heading": "Before Launch",
+                "body": "Replace placeholder contact details with your real support email, social links, or GitHub repository before sharing the project publicly.",
+            },
+        ],
+    },
+    "privacy": {
+        "kicker": "Privacy Policy",
+        "title": "Privacy at CinePick",
+        "intro": "This page explains, in simple language, how CinePick handles account information, saved movie lists, and third-party movie data. It is a project-friendly privacy page and should be reviewed before any production launch.",
+        "sections": [
+            {
+                "heading": "What CinePick Stores",
+                "body": "CinePick stores basic account information such as username, email address, and the movies you save to your wishlist or watched list.",
+            },
+            {
+                "heading": "Third-Party Data",
+                "body": "Movie information and posters may come from external services such as OMDb, Wikipedia, Wikidata, and optional AI-powered search integrations. Their data and availability are controlled by those services.",
+            },
+            {
+                "heading": "How Data Is Used",
+                "body": "Saved data is used only to power core product features like personalized lists, watched tracking, search, and recommendations inside the CinePick experience.",
+            },
+            {
+                "heading": "Before Production Use",
+                "body": "If you deploy CinePick publicly, update this page with your real contact details, data retention rules, hosting setup, cookie usage, and any legal requirements that apply to your region.",
+            },
+        ],
+    },
+    "terms": {
+        "kicker": "Terms of Use",
+        "title": "Terms for Using CinePick",
+        "intro": "These terms describe the expected use of CinePick as a movie discovery platform. They are written for the project in its current form and should be refined before any real public release.",
+        "sections": [
+            {
+                "heading": "Use of the Service",
+                "body": "CinePick is intended for discovering movies, saving titles, and browsing curated collections. Users should not misuse the app, attempt to damage the service, or abuse authentication features.",
+            },
+            {
+                "heading": "Content and Availability",
+                "body": "Movie details shown in CinePick may come from third-party services and can change, disappear, or contain inaccuracies. CinePick does not guarantee that all information will always be complete or available.",
+            },
+            {
+                "heading": "Accounts",
+                "body": "Users are responsible for the activity tied to their account credentials. If you launch the project publicly, you should expand this section with password, suspension, and account recovery policies.",
+            },
+            {
+                "heading": "Project Disclaimer",
+                "body": "CinePick is currently a project application. Before production launch, review these terms carefully and replace placeholders with language appropriate for your actual deployment and jurisdiction.",
+            },
+        ],
+    },
+}
+
 OMDB_BASE_URL = "https://www.omdbapi.com/"
 RANDOM_SEARCH_SEEDS = [
     "love",
@@ -323,6 +475,143 @@ SEARCH_NOISE_WORDS = {
     "top",
 }
 
+NOISY_TITLE_PATTERNS = (
+    "one-shot",
+    "behind the scenes",
+    "making of",
+    "featurette",
+    "deleted scene",
+    "trailer",
+    "teaser",
+    "sneak peek",
+    "promo",
+)
+
+MIN_FEATURE_RUNTIME_MINUTES = 60
+COLLECTION_PAGE_SIZE = 5
+
+CURATED_SEARCH_REDIRECTS = {
+    "bollywood": "bollywood",
+    "bollywood movies": "bollywood",
+    "hindi cinema": "bollywood",
+    "hindi movies": "bollywood",
+    "south indian": "south-indian",
+    "south indian movies": "south-indian",
+    "tamil telugu": "south-indian",
+    "tamil telugu movies": "south-indian",
+    "telugu tamil": "south-indian",
+    "telugu tamil movie": "south-indian",
+    "telugu tamil movies": "south-indian",
+    "tamil movies": "south-indian",
+    "telugu movies": "south-indian",
+    "indian drama": "indian-drama",
+    "indian drama movie": "indian-drama",
+    "indian drama movies": "indian-drama",
+    "marvel": "marvel",
+    "marvel movies": "marvel",
+}
+
+AI_DYNAMIC_STATIC_PAGE_SLUGS = {"contact", "privacy", "terms"}
+
+AI_DYNAMIC_FRANCHISE_GUIDANCE = {
+    "marvel": "Return the officially released Marvel theatrical movies in release order as of today. Exclude shorts, one-shots, and unreleased films.",
+    "dc": "Return the officially released DC theatrical movies in release order as of today. Exclude unreleased films and avoid shorts or specials.",
+    "bollywood": "Return a strong curated list of notable Hindi-language Bollywood feature films.",
+    "south-indian": "Return a curated mix of notable Tamil and Telugu feature films.",
+    "indian-drama": "Return acclaimed Indian drama feature films across Hindi and regional cinema.",
+    "cinepick-best-movies": "Return a top 10 list of widely respected movies across drama, sci-fi, crime, and classics.",
+    "cinepick-best-series": "Return a top 10 list of widely respected TV series across drama, thriller, sci-fi, and prestige television.",
+}
+
+TMDB_COMPANY_FALLBACKS = {
+    "marvel": 420,
+}
+
+STRICT_FRANCHISE_FALLBACKS: dict[str, list[dict[str, str]]] = {
+    "dc": [
+        {"title": "Man of Steel", "release_date": "2013-06-14"},
+        {"title": "Batman v Superman: Dawn of Justice", "release_date": "2016-03-25"},
+        {"title": "Suicide Squad", "release_date": "2016-08-05"},
+        {"title": "Wonder Woman", "release_date": "2017-06-02"},
+        {"title": "Justice League", "release_date": "2017-11-17"},
+        {"title": "Aquaman", "release_date": "2018-12-21"},
+        {"title": "Shazam!", "release_date": "2019-04-05"},
+        {"title": "Birds of Prey", "release_date": "2020-02-07"},
+        {"title": "Wonder Woman 1984", "release_date": "2020-12-25"},
+        {"title": "The Suicide Squad", "release_date": "2021-08-06"},
+        {"title": "Black Adam", "release_date": "2022-10-21"},
+        {"title": "Shazam! Fury of the Gods", "release_date": "2023-03-17"},
+        {"title": "The Flash", "release_date": "2023-06-16"},
+        {"title": "Blue Beetle", "release_date": "2023-08-18"},
+        {"title": "Aquaman and the Lost Kingdom", "release_date": "2023-12-22"},
+        {"title": "Superman", "release_date": "2025-07-11"},
+    ],
+    "bollywood": [
+        {"title": "Dilwale Dulhania Le Jayenge"},
+        {"title": "Kuch Kuch Hota Hai"},
+        {"title": "Lagaan: Once Upon a Time in India"},
+        {"title": "Kal Ho Naa Ho"},
+        {"title": "Swades"},
+        {"title": "Rang De Basanti"},
+        {"title": "Taare Zameen Par"},
+        {"title": "3 Idiots"},
+        {"title": "Zindagi Na Milegi Dobara"},
+        {"title": "Barfi!"},
+        {"title": "Queen"},
+        {"title": "PK"},
+        {"title": "Bajrangi Bhaijaan"},
+        {"title": "Dangal"},
+        {"title": "Andhadhun"},
+        {"title": "Gully Boy"},
+        {"title": "Article 15"},
+        {"title": "Gangubai Kathiawadi"},
+        {"title": "Pathaan"},
+        {"title": "Jawan"},
+        {"title": "12th Fail"},
+        {"title": "Stree 2"},
+    ],
+    "south-indian": [
+        {"title": "Baahubali: The Beginning"},
+        {"title": "Baahubali 2: The Conclusion"},
+        {"title": "RRR"},
+        {"title": "Eega"},
+        {"title": "Magadheera"},
+        {"title": "Rangasthalam"},
+        {"title": "Mahanati"},
+        {"title": "Ala Vaikunthapurramuloo"},
+        {"title": "Arjun Reddy"},
+        {"title": "Jersey"},
+        {"title": "Vikram"},
+        {"title": "Kaithi"},
+        {"title": "Master"},
+        {"title": "Leo"},
+        {"title": "Asuran"},
+        {"title": "Soorarai Pottru"},
+        {"title": "Mersal"},
+        {"title": "96"},
+    ],
+    "indian-drama": [
+        {"title": "Pather Panchali"},
+        {"title": "Aparajito"},
+        {"title": "Charulata"},
+        {"title": "The Lunchbox"},
+        {"title": "Masaan"},
+        {"title": "Udaan"},
+        {"title": "Court"},
+        {"title": "Sairat"},
+        {"title": "Fandry"},
+        {"title": "Kumbalangi Nights"},
+        {"title": "The Great Indian Kitchen"},
+        {"title": "C/o Kancharapalem"},
+        {"title": "Visaranai"},
+        {"title": "Thithi"},
+        {"title": "Ship of Theseus"},
+        {"title": "Super Deluxe"},
+        {"title": "Article 15"},
+        {"title": "12th Fail"},
+    ],
+}
+
 
 def _safe_page(raw_page: str | None) -> int:
     try:
@@ -332,10 +621,85 @@ def _safe_page(raw_page: str | None) -> int:
     return max(1, min(page, 100))
 
 
+def _normalized_search_key(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip().lower())
+
+
 def _get_json(url: str, headers: dict[str, str] | None = None, data: bytes | None = None) -> dict[str, Any]:
     request = Request(url, headers=headers or {}, data=data)
     with urlopen(request, timeout=20) as response:
         return json.loads(response.read().decode("utf-8"))
+
+
+def _gemini_json(prompt: str) -> dict[str, Any]:
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        return {}
+
+    body = {
+        "system_instruction": {
+            "parts": [
+                {
+                    "text": (
+                        "Return only valid JSON. Do not wrap the JSON in markdown fences. "
+                        "Keep copy concise and production-friendly."
+                    )
+                }
+            ]
+        },
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {"responseMimeType": "application/json"},
+    }
+
+    try:
+        response = _get_json(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent?key={api_key}",
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(body).encode("utf-8"),
+        )
+    except Exception:
+        return {}
+
+    candidates = response.get("candidates") or []
+    for candidate in candidates:
+        content = candidate.get("content") or {}
+        for part in content.get("parts") or []:
+            text = (part.get("text") or "").strip()
+            if not text:
+                continue
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                continue
+    return {}
+
+
+def _gemini_text(prompt: str) -> str:
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        return ""
+
+    body = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+    }
+
+    try:
+        response = _get_json(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent?key={api_key}",
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(body).encode("utf-8"),
+        )
+    except Exception:
+        return ""
+
+    candidates = response.get("candidates") or []
+    for candidate in candidates:
+        content = candidate.get("content") or {}
+        for part in content.get("parts") or []:
+            text = (part.get("text") or "").strip()
+            if text:
+                return text
+    return ""
 
 
 def _omdb_request(params: dict[str, Any]) -> dict[str, Any]:
@@ -350,6 +714,19 @@ def _omdb_request(params: dict[str, Any]) -> dict[str, Any]:
         return {"Response": "False", "Error": "CinePick could not reach OMDb right now. Please try again shortly."}
 
 
+def _tmdb_request(path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    api_key = settings.TMDB_API_KEY
+    if not api_key:
+        return {}
+
+    query = urlencode({"api_key": api_key, **(params or {})})
+    try:
+        return _get_json(f"https://api.themoviedb.org/3/{path}?{query}")
+    except Exception:
+        return {}
+
+
+@lru_cache(maxsize=512)
 def _movie_detail(imdb_id: str) -> dict[str, Any]:
     details = _omdb_request({"i": imdb_id, "plot": "short"})
     if details.get("Response") == "False":
@@ -357,11 +734,48 @@ def _movie_detail(imdb_id: str) -> dict[str, Any]:
     return details
 
 
+@lru_cache(maxsize=512)
 def _title_detail(title: str) -> dict[str, Any]:
     details = _omdb_request({"t": title})
     if details.get("Response") == "False":
         return {}
     return details
+
+
+def _normalized_title_key(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", value.lower())
+
+
+@lru_cache(maxsize=512)
+def _resolved_title_detail(title: str) -> dict[str, Any]:
+    detail = _title_detail(title)
+    if detail:
+        return detail
+
+    search_payload = _omdb_request({"s": title, "type": "movie", "page": 1})
+    if search_payload.get("Response") == "False":
+        return {}
+
+    target_key = _normalized_title_key(title)
+    best_item: dict[str, Any] | None = None
+
+    for item in search_payload.get("Search", []):
+        candidate_title = str(item.get("Title") or "").strip()
+        if not candidate_title:
+            continue
+        if _normalized_title_key(candidate_title) == target_key:
+            best_item = item
+            break
+        if best_item is None:
+            best_item = item
+
+    if not best_item:
+        return {}
+
+    imdb_id = str(best_item.get("imdbID") or "").strip()
+    if not imdb_id:
+        return {}
+    return _movie_detail(imdb_id)
 
 
 def _person_profile(page_title: str) -> dict[str, str]:
@@ -422,6 +836,257 @@ def _normalize_movie(movie: dict[str, Any], detail: dict[str, Any]) -> dict[str,
     }
 
 
+def _parse_release_date(value: str | None) -> date | None:
+    if not value or value == "N/A":
+        return None
+
+    try:
+        return datetime.strptime(value, "%d %b %Y").date()
+    except ValueError:
+        return None
+
+
+def _parse_release_year(value: str | None) -> int | None:
+    if not value:
+        return None
+
+    match = re.search(r"(19|20)\d{2}", value)
+    if not match:
+        return None
+    return int(match.group(0))
+
+
+def _parse_runtime_minutes(value: str | None) -> int | None:
+    if not value or value == "N/A":
+        return None
+
+    match = re.search(r"(\d+)", value)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def _is_usable_movie(movie: dict[str, Any], detail: dict[str, Any]) -> bool:
+    title = (detail.get("Title") or movie.get("Title") or "").strip().lower()
+    if not title:
+        return False
+
+    if any(pattern in title for pattern in NOISY_TITLE_PATTERNS):
+        return False
+
+    detail_type = (detail.get("Type") or movie.get("Type") or "").strip().lower()
+    if detail_type and detail_type != "movie":
+        return False
+
+    genre_text = (detail.get("Genre") or "").strip().lower()
+    if "short" in genre_text:
+        return False
+
+    release_date = _parse_release_date(detail.get("Released"))
+    if release_date and release_date > date.today():
+        return False
+
+    release_year = _parse_release_year(detail.get("Year") or movie.get("Year"))
+    if release_year and release_year > date.today().year:
+        return False
+
+    runtime_minutes = _parse_runtime_minutes(detail.get("Runtime"))
+    if runtime_minutes is not None and runtime_minutes < MIN_FEATURE_RUNTIME_MINUTES:
+        return False
+
+    return True
+
+
+def _normalize_usable_movie(movie: dict[str, Any], detail: dict[str, Any]) -> dict[str, Any] | None:
+    if not _is_usable_movie(movie, detail):
+        return None
+    return _normalize_movie(movie, detail)
+
+
+def _is_usable_series(movie: dict[str, Any], detail: dict[str, Any]) -> bool:
+    title = (detail.get("Title") or movie.get("Title") or "").strip().lower()
+    if not title:
+        return False
+
+    if any(pattern in title for pattern in NOISY_TITLE_PATTERNS):
+        return False
+
+    detail_type = (detail.get("Type") or movie.get("Type") or "").strip().lower()
+    if detail_type and detail_type != "series":
+        return False
+
+    genre_text = (detail.get("Genre") or "").strip().lower()
+    if "short" in genre_text:
+        return False
+
+    return True
+
+
+def _normalize_usable_series(movie: dict[str, Any], detail: dict[str, Any]) -> dict[str, Any] | None:
+    if not _is_usable_series(movie, detail):
+        return None
+    return _normalize_movie(movie, detail)
+
+
+def _dedupe_preserve_order(values: list[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        cleaned = value.strip()
+        normalized = cleaned.casefold()
+        if not cleaned or normalized in seen:
+            continue
+        seen.add(normalized)
+        result.append(cleaned)
+    return result
+
+
+def _validated_dynamic_titles(
+    raw_titles: list[str],
+    *,
+    expected_type: str,
+    collection_kind: str,
+) -> list[dict[str, str]]:
+    validated: list[dict[str, str]] = []
+    seen: set[str] = set()
+
+    for raw_title in _dedupe_preserve_order(raw_titles):
+        detail = _resolved_title_detail(raw_title)
+        if not detail:
+            continue
+
+        normalized = (
+            _normalize_usable_series(detail, detail)
+            if expected_type == "series"
+            else _normalize_usable_movie(detail, detail)
+        )
+        if not normalized:
+            continue
+
+        clean_title = normalized["title"]
+        dedupe_key = clean_title.casefold()
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+
+        entry: dict[str, str] = {"title": clean_title}
+        if collection_kind == "release_order":
+            release_date = _parse_release_date(detail.get("Released"))
+            if not release_date:
+                continue
+            entry["release_date"] = release_date.isoformat()
+        validated.append(entry)
+
+    if collection_kind == "release_order":
+        validated.sort(key=lambda item: item.get("release_date", "9999-12-31"))
+
+    return validated
+
+
+def _dynamic_franchise(slug: str) -> dict[str, Any] | None:
+    fallback = FRANCHISE_CONFIG.get(slug)
+    if not fallback:
+        return None
+
+    strict_titles = STRICT_FRANCHISE_FALLBACKS.get(slug)
+    if strict_titles:
+        return {
+            **fallback,
+            "titles": strict_titles,
+            "api_error": None,
+        }
+
+    expected_type = fallback.get("expected_type", "movie")
+    cleaned_titles = _franchise_ai_titles(slug, fallback)
+    if not cleaned_titles and fallback.get("collection_kind") != "release_order":
+        cleaned_titles = _fallback_franchise_titles(slug, expected_type=expected_type)
+
+    validated_titles = _validated_dynamic_titles(
+        cleaned_titles,
+        expected_type=expected_type,
+        collection_kind=fallback["collection_kind"],
+    )
+    if not validated_titles:
+        return {
+            **fallback,
+            "titles": [],
+            "api_error": "CinePick could not build this movie list right now. Please try again shortly.",
+        }
+
+    return {
+        **fallback,
+        "titles": validated_titles,
+        "api_error": None,
+    }
+
+
+def _cached_franchise_payload(slug: str) -> tuple[dict[str, Any] | None, list[dict[str, Any]], str | None]:
+    franchise = _dynamic_franchise(slug) or FRANCHISE_CONFIG.get(slug)
+    if not franchise:
+        return None, [], None
+
+    expected_type = franchise.get("expected_type", "movie")
+    api_error = franchise.get("api_error")
+    if expected_type == "series":
+        all_movies, fetch_error = _fetch_collection_series(franchise.get("titles", []))
+    else:
+        all_movies, fetch_error = _fetch_collection_movies(franchise.get("titles", []))
+
+    if fetch_error and not api_error:
+        api_error = fetch_error
+
+    return franchise, all_movies, api_error
+
+
+@lru_cache(maxsize=8)
+def _dynamic_static_page(slug: str) -> dict[str, Any] | None:
+    fallback = STATIC_PAGE_CONTENT.get(slug)
+    if not fallback or slug not in AI_DYNAMIC_STATIC_PAGE_SLUGS or not settings.ENABLE_AI_DYNAMIC_CONTENT:
+        return fallback
+
+    prompt = (
+        f"Build JSON for the CinePick static page '{slug}'.\n"
+        f"Title: {fallback['title']}\n"
+        f"Kicker: {fallback['kicker']}\n"
+        "Return this JSON shape exactly:\n"
+        '{"intro":"...","sections":[{"heading":"...","body":"..."}]}\n'
+        "Keep 3 to 4 sections. Make the language project-friendly, concise, and realistic for a movie discovery app."
+    )
+
+    payload = _gemini_json(prompt)
+    sections = payload.get("sections")
+    if not isinstance(sections, list) or not sections:
+        return fallback
+
+    normalized_sections: list[dict[str, str]] = []
+    for section in sections[:4]:
+        heading = str(section.get("heading") or "").strip()
+        body = str(section.get("body") or "").strip()
+        if not heading or not body:
+            continue
+        normalized_sections.append({"heading": heading, "body": body})
+
+    if not normalized_sections:
+        return fallback
+
+    return {
+        **fallback,
+        "intro": str(payload.get("intro") or fallback["intro"]),
+        "sections": normalized_sections,
+    }
+
+
+def _paginate_collection_items(items: list[dict[str, Any]], page: int, *, page_size: int = COLLECTION_PAGE_SIZE) -> tuple[list[dict[str, Any]], int, int]:
+    if not items:
+        return [], 1, 1
+
+    total_pages = max(1, (len(items) + page_size - 1) // page_size)
+    current_page = min(page, total_pages)
+    start = (current_page - 1) * page_size
+    end = start + page_size
+    return items[start:end], current_page, total_pages
+
+
 def _fetch_curated_titles(titles: list[str]) -> tuple[list[dict[str, Any]], str | None]:
     curated: list[dict[str, Any]] = []
 
@@ -429,12 +1094,83 @@ def _fetch_curated_titles(titles: list[str]) -> tuple[list[dict[str, Any]], str 
         detail = _title_detail(title)
         if not detail:
             continue
-        curated.append(_normalize_movie(detail, detail))
+        movie = _normalize_usable_movie(detail, detail)
+        if movie:
+            curated.append(movie)
 
     if curated:
         return curated, None
 
     return [], "CinePick could not load featured titles for this page right now."
+
+
+def _fetch_collection_movies(entries: list[dict[str, str]]) -> tuple[list[dict[str, Any]], str | None]:
+    prepared_entries: list[tuple[dict[str, str], date | None]] = []
+    for entry in entries:
+        release_date_value = entry.get("release_date")
+        release_date = date.fromisoformat(release_date_value) if release_date_value else None
+        if release_date and release_date > date.today():
+            continue
+        prepared_entries.append((entry, release_date))
+
+    curated: list[dict[str, Any]] = []
+    for index, (entry, release_date) in enumerate(prepared_entries, start=1):
+        detail = _title_detail(entry["title"])
+        if detail:
+            movie = _normalize_usable_movie(detail, detail)
+            if not movie:
+                continue
+        else:
+            movie = {
+                "title": entry["title"],
+                "poster_url": None,
+                "release_year": str(release_date.year) if release_date else "Unknown",
+                "overview": "Curated movie pick.",
+                "vote_average": 0.0,
+                "imdb_id": "",
+            }
+
+        if release_date:
+            movie["release_year"] = str(release_date.year)
+            movie["release_date_label"] = release_date.strftime("%b %d, %Y")
+        else:
+            movie["release_date_label"] = ""
+        movie["release_order"] = index
+        curated.append(movie)
+
+    if curated:
+        return curated, None
+
+    return [], "CinePick could not load this curated collection right now."
+
+
+def _fetch_collection_series(entries: list[dict[str, str]]) -> tuple[list[dict[str, Any]], str | None]:
+    curated: list[dict[str, Any]] = []
+
+    for index, entry in enumerate(entries, start=1):
+        detail = _title_detail(entry["title"])
+        if detail:
+            item = _normalize_usable_series(detail, detail)
+            if not item:
+                continue
+        else:
+            item = {
+                "title": entry["title"],
+                "poster_url": None,
+                "release_year": "Unknown",
+                "overview": "Curated series pick.",
+                "vote_average": 0.0,
+                "imdb_id": "",
+            }
+
+        item["release_date_label"] = ""
+        item["release_order"] = index
+        curated.append(item)
+
+    if curated:
+        return curated, None
+
+    return [], "CinePick could not load this curated series collection right now."
 
 
 def _fetch_director_filmography(name: str) -> tuple[list[dict[str, Any]], str | None]:
@@ -474,6 +1210,10 @@ ORDER BY DESC(?publication) ?filmLabel
         imdb_id = item.get("imdbId", {}).get("value", "").strip()
         year_value = item.get("publication", {}).get("value", "")
         release_year = year_value[:4] if year_value else "Unknown"
+        parsed_release_year = _parse_release_year(release_year)
+        if parsed_release_year and parsed_release_year > date.today().year:
+            continue
+
         dedupe_key = imdb_id or title.lower()
         if dedupe_key in seen_keys:
             continue
@@ -481,18 +1221,18 @@ ORDER BY DESC(?publication) ?filmLabel
 
         detail = _movie_detail(imdb_id) if imdb_id else _title_detail(title)
         if detail:
-            movies.append(
-                _normalize_movie(
-                    {
-                        "Title": title,
-                        "Year": release_year,
-                        "imdbID": imdb_id,
-                        "Poster": detail.get("Poster"),
-                    },
-                    detail,
-                )
+            movie = _normalize_usable_movie(
+                {
+                    "Title": title,
+                    "Year": release_year,
+                    "imdbID": imdb_id,
+                    "Poster": detail.get("Poster"),
+                },
+                detail,
             )
-        else:
+            if movie:
+                movies.append(movie)
+        elif not parsed_release_year or parsed_release_year <= date.today().year:
             movies.append(
                 {
                     "title": title,
@@ -548,11 +1288,17 @@ def _fetch_movies(search_term: str, page: int) -> tuple[list[dict[str, Any]], in
     movies = []
     for item in search_results:
         detail = _movie_detail(item.get("imdbID", ""))
-        movies.append(_normalize_movie(item, detail))
+        movie = _normalize_usable_movie(item, detail)
+        if movie:
+            movies.append(movie)
 
     fallback_notice = None
     if matched_term.lower() != search_term.strip().lower():
         fallback_notice = f'No exact title matches for "{search_term}". Showing results for "{matched_term}" instead.'
+
+    if not movies and search_results:
+        quality_notice = "CinePick filtered out non-standard or unreleased titles for this page."
+        return [], total_pages, f"{fallback_notice} {quality_notice}".strip() if fallback_notice else quality_notice
 
     return movies, total_pages, fallback_notice
 
@@ -574,7 +1320,10 @@ def _fetch_random_movies(count: int = 10) -> tuple[list[dict[str, Any]], str | N
             if any(movie.get("imdb_id") == item.get("imdbID") for movie in shuffled_results):
                 continue
             detail = _movie_detail(item.get("imdbID", ""))
-            shuffled_results.append(_normalize_movie(item, detail))
+            movie = _normalize_usable_movie(item, detail)
+            if not movie:
+                continue
+            shuffled_results.append(movie)
             if len(shuffled_results) >= count:
                 return shuffled_results, None
 
@@ -603,7 +1352,9 @@ def _fetch_recent_releases(count: int = 8) -> tuple[list[dict[str, Any]], str | 
                         continue
 
                     detail = _movie_detail(imdb_id)
-                    movie = _normalize_movie(item, detail)
+                    movie = _normalize_usable_movie(item, detail)
+                    if not movie:
+                        continue
                     release_year = str(movie.get("release_year", ""))[:4]
                     if release_year != str(year):
                         continue
@@ -648,55 +1399,325 @@ def _extract_keywords(prompt: str) -> str:
     return " ".join(unique_keywords[:4]) or prompt.strip()
 
 
-def _ai_keyword_search(prompt: str) -> tuple[str, str | None]:
+def _serialize_ai_titles(titles: list[str]) -> str:
+    return "|".join(title for title in titles if title)
+
+
+def _deserialize_ai_titles(raw_titles: str) -> list[str]:
+    titles: list[str] = []
+    seen: set[str] = set()
+    for title in raw_titles.split("|"):
+        cleaned = title.strip()
+        normalized = cleaned.casefold()
+        if not cleaned or normalized in seen:
+            continue
+        seen.add(normalized)
+        titles.append(cleaned)
+    return titles
+
+
+def _clean_ai_title_line(value: str) -> str:
+    cleaned = value.strip()
+    cleaned = re.sub(r"^\d+[\).\-\s]+", "", cleaned)
+    cleaned = re.sub(r"^[-*•]\s*", "", cleaned)
+    cleaned = re.sub(r"\s*\(\d{4}\)\s*$", "", cleaned)
+    cleaned = cleaned.strip(" \"'`-\t")
+
+    lower_cleaned = cleaned.casefold()
+    if not cleaned:
+        return ""
+    if lower_cleaned.startswith("here are"):
+        return ""
+    if lower_cleaned.startswith("sure"):
+        return ""
+    if lower_cleaned.startswith("certainly"):
+        return ""
+
+    return cleaned
+
+
+def _franchise_ai_titles(slug: str, fallback: dict[str, Any]) -> list[str]:
+    expected_type = fallback.get("expected_type", "movie")
+    count_hint = int(fallback.get("ai_target_count", 12))
+    prompt = (
+        f"List about {count_hint} real {'TV series' if expected_type == 'series' else 'movies'} for this CinePick page.\n"
+        f"Slug: {slug}\n"
+        f"Display name: {fallback['name']}\n"
+        f"Collection kind: {fallback['collection_kind']}\n"
+        f"Guidance: {AI_DYNAMIC_FRANCHISE_GUIDANCE.get(slug, '')}\n"
+        "Return one title per line only. No numbering, no bullets, no commentary."
+    )
+
+    output_text = _gemini_text(prompt)
+    if not output_text:
+        return []
+
+    titles: list[str] = []
+    seen: set[str] = set()
+    for line in output_text.splitlines():
+        cleaned_title = _clean_ai_title_line(line)
+        normalized = cleaned_title.casefold()
+        if not cleaned_title or normalized in seen:
+            continue
+        seen.add(normalized)
+        titles.append(cleaned_title)
+    return titles
+
+
+def _fallback_franchise_search_terms(slug: str) -> list[str]:
+    return {
+        "marvel": ["marvel movie", "avengers movie", "iron man"],
+        "dc": ["dc movie", "batman movie", "superman movie"],
+        "bollywood": ["bollywood movie", "hindi movie", "shah rukh khan movie"],
+        "south-indian": ["telugu movie", "tamil movie", "south indian movie"],
+        "indian-drama": ["indian drama movie", "hindi drama movie", "award winning indian movie"],
+        "cinepick-best-movies": ["top rated movie", "best movie", "classic movie"],
+        "cinepick-best-series": ["top rated series", "best tv series", "prestige drama series"],
+    }.get(slug, [slug.replace("-", " ")])
+
+
+@lru_cache(maxsize=16)
+def _tmdb_company_fallback_titles(slug: str) -> list[str]:
+    company_id = TMDB_COMPANY_FALLBACKS.get(slug)
+    if not company_id:
+        return []
+
+    titles_with_dates: list[tuple[str, str]] = []
+    total_pages = 1
+
+    for page in range(1, 6):
+        payload = _tmdb_request(f"company/{company_id}/movies", {"page": page})
+        results = payload.get("results") or []
+        if not results:
+            break
+
+        total_pages = int(payload.get("total_pages", total_pages) or total_pages)
+        for item in results:
+            title = str(item.get("title") or "").strip()
+            release_date = str(item.get("release_date") or "").strip()
+            if not title or not release_date:
+                continue
+            if any(pattern in title.lower() for pattern in NOISY_TITLE_PATTERNS):
+                continue
+            titles_with_dates.append((title, release_date))
+
+        if page >= total_pages:
+            break
+
+    titles_with_dates.sort(key=lambda item: item[1])
+    return _dedupe_preserve_order([title for title, _release_date in titles_with_dates])
+
+
+def _fallback_franchise_titles(slug: str, *, expected_type: str) -> list[str]:
+    if slug in {"marvel", "dc"}:
+        source_titles = _tmdb_company_fallback_titles(slug)
+        if source_titles:
+            return source_titles
+        return []
+
+    titles: list[str] = []
+    seen: set[str] = set()
+
+    for term in _fallback_franchise_search_terms(slug):
+        payload = _omdb_request({"s": term, "type": expected_type, "page": 1})
+        if payload.get("Response") == "False":
+            continue
+
+        for item in payload.get("Search", []):
+            title = str(item.get("Title") or "").strip()
+            normalized = title.casefold()
+            if not title or normalized in seen:
+                continue
+            seen.add(normalized)
+            titles.append(title)
+
+    return titles
+
+
+def _ai_recommend_titles(prompt: str) -> tuple[list[str], str | None]:
     cleaned_prompt = prompt.strip()
     if not cleaned_prompt:
-        return "", None
+        return [], None
 
-    api_key = settings.OPENAI_API_KEY
+    api_key = settings.GEMINI_API_KEY
     if not api_key:
-        return _extract_keywords(cleaned_prompt), None
+        return [], "Add GEMINI_API_KEY to your .env file to unlock mood-based AI recommendations."
 
     body = {
-        "model": settings.OPENAI_MODEL,
-        "input": [
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": "Convert a movie mood into 2 to 5 simple search keywords for OMDb. Return keywords only.",
-                    }
-                ],
-            },
+        "system_instruction": {
+            "parts": [
+                {
+                    "text": (
+                        "You are a movie recommendation engine. Based on the user's mood, return 8 movie titles that fit well. "
+                        "Only include real released feature films. Avoid shorts, series, unreleased movies, documentaries unless clearly requested, "
+                        "and avoid numbering or extra commentary. Return one movie title per line."
+                    )
+                }
+            ]
+        },
+        "contents": [
             {
                 "role": "user",
-                "content": [{"type": "input_text", "text": cleaned_prompt}],
-            },
+                "parts": [{"text": cleaned_prompt}],
+            }
         ],
     }
 
     try:
         response = _get_json(
-            "https://api.openai.com/v1/responses",
+            f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent?key={api_key}",
             headers={
-                "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
             data=json.dumps(body).encode("utf-8"),
         )
     except Exception:
-        return _extract_keywords(cleaned_prompt), "OpenAI was unavailable, so CinePick used a local keyword fallback."
+        return [], "Gemini was unavailable, so CinePick could not generate mood-based recommendations right now."
 
-    output_text = response.get("output_text", "").strip()
-    if output_text:
-        return output_text, None
+    candidates = response.get("candidates") or []
+    for candidate in candidates:
+        content = candidate.get("content") or {}
+        for part in content.get("parts") or []:
+            output_text = (part.get("text") or "").strip()
+            if output_text:
+                titles: list[str] = []
+                seen: set[str] = set()
+                for line in output_text.splitlines():
+                    cleaned_title = _clean_ai_title_line(line)
+                    normalized = cleaned_title.casefold()
+                    if not cleaned_title or normalized in seen:
+                        continue
+                    seen.add(normalized)
+                    titles.append(cleaned_title)
+                if titles:
+                    return titles, None
 
-    return _extract_keywords(cleaned_prompt), "OpenAI did not return keywords, so CinePick used a local keyword fallback."
+    return [], "Gemini did not return usable movie recommendations right now."
+
+
+def _normalize_ai_search_results(movies: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    normalized_movies = []
+    for movie in movies:
+        detail = _movie_detail(movie.get("imdbID", ""))
+        normalized_movie = _normalize_usable_movie(movie, detail)
+        if not normalized_movie:
+            continue
+        normalized_movie["overview"] = "Fallback recommendation match based on the mood you described."
+        normalized_movies.append(normalized_movie)
+    return normalized_movies
+
+
+def _fetch_ai_movies(search_term: str, page: int) -> tuple[list[dict[str, Any]], int, str | None]:
+    movies_payload = _omdb_request({"s": search_term, "type": "movie", "page": page})
+    if movies_payload.get("Response") == "False":
+        return [], 1, movies_payload.get("Error") or "No AI suggestions were found."
+
+    total_results = int(movies_payload.get("totalResults", 0) or 0)
+    total_pages = max(1, min((total_results + 9) // 10, 100))
+    return _normalize_ai_search_results(movies_payload.get("Search", [])), total_pages, None
+
+
+def _fetch_ai_recommendations(titles: list[str], page: int) -> tuple[list[dict[str, Any]], int, int, str | None]:
+    recommendations: list[dict[str, Any]] = []
+
+    for title in titles:
+        detail = _title_detail(title)
+        if not detail:
+            continue
+        movie = _normalize_usable_movie(detail, detail)
+        if not movie:
+            continue
+        movie["overview"] = "AI recommendation chosen to match the mood or vibe you described."
+        recommendations.append(movie)
+
+    if not recommendations:
+        return [], 1, 1, "CinePick could not turn that mood into solid movie recommendations right now."
+
+    paginated, current_page, total_pages = _paginate_collection_items(recommendations, page)
+    return paginated, current_page, total_pages, None
+
+
+def _page_url(
+    request: HttpRequest,
+    *,
+    page: int,
+    extra_params: dict[str, str] | None = None,
+) -> str:
+    params = request.GET.copy()
+
+    if extra_params:
+        for key, value in extra_params.items():
+            if value:
+                params[key] = value
+            elif key in params:
+                del params[key]
+
+    if page <= 1:
+        if "page" in params:
+            del params["page"]
+    else:
+        params["page"] = str(page)
+
+    query_string = params.urlencode()
+    return f"{request.path}?{query_string}" if query_string else request.path
+
+
+def _pagination_items(
+    request: HttpRequest,
+    *,
+    current_page: int,
+    total_pages: int,
+    extra_params: dict[str, str] | None = None,
+) -> list[dict[str, Any]]:
+    if total_pages <= 1:
+        return []
+
+    pages = {1, total_pages}
+    pages.update(range(max(1, current_page - 1), min(total_pages, current_page + 1) + 1))
+    ordered_pages = sorted(pages)
+
+    items: list[dict[str, Any]] = []
+    previous_page = 0
+    for page_number in ordered_pages:
+        if previous_page and page_number - previous_page > 1:
+            items.append({"is_gap": True, "label": "..."})
+
+        items.append(
+            {
+                "is_gap": False,
+                "label": str(page_number),
+                "url": _page_url(request, page=page_number, extra_params=extra_params),
+                "is_current": page_number == current_page,
+            }
+        )
+        previous_page = page_number
+
+    return items
+
+
+def _pagination_context(
+    request: HttpRequest,
+    *,
+    current_page: int,
+    total_pages: int,
+    extra_params: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "show_pagination": total_pages > 1,
+        "previous_url": _page_url(request, page=current_page - 1, extra_params=extra_params) if current_page > 1 else "",
+        "next_url": _page_url(request, page=current_page + 1, extra_params=extra_params) if current_page < total_pages else "",
+        "pagination_items": _pagination_items(
+            request,
+            current_page=current_page,
+            total_pages=total_pages,
+            extra_params=extra_params,
+        ),
+    }
 
 
 def _catalog_context(
     *,
+    request: HttpRequest,
     request_user: Any,
     search_term: str,
     page: int,
@@ -725,6 +1746,7 @@ def _catalog_context(
         "genre_slug": genre_slug,
         "genre_name": genre_name,
         "genre_description": genre_description,
+        **_pagination_context(request, current_page=page, total_pages=total_pages),
     }
 
 
@@ -750,6 +1772,10 @@ def home(request: HttpRequest) -> HttpResponse:
     query = (request.GET.get("q") or "").strip()
     page = _safe_page(request.GET.get("page"))
 
+    redirect_slug = CURATED_SEARCH_REDIRECTS.get(_normalized_search_key(query))
+    if redirect_slug:
+        return redirect("franchise_view", slug=redirect_slug)
+
     if not query:
         movies, api_error = _fetch_random_movies()
         recent_releases, recent_releases_error = _fetch_recent_releases()
@@ -774,10 +1800,14 @@ def home(request: HttpRequest) -> HttpResponse:
             "genre_description": "",
             "is_random_page": True,
             "director_cards": _director_cards(),
+            "show_pagination": False,
+            "previous_url": "",
+            "next_url": "",
+            "pagination_items": [],
         }
         return render(request, "movies/home.html", context)
 
-    context = _catalog_context(request_user=request.user, search_term=query, page=page, query=query)
+    context = _catalog_context(request=request, request_user=request.user, search_term=query, page=page, query=query)
     context["is_random_page"] = False
     context["recent_releases"] = []
     context["recent_releases_error"] = None
@@ -790,8 +1820,50 @@ def about_view(request: HttpRequest) -> HttpResponse:
     return render(request, "movies/about.html")
 
 
+def _render_static_page(request: HttpRequest, slug: str) -> HttpResponse:
+    page = _dynamic_static_page(slug) or STATIC_PAGE_CONTENT[slug]
+    return render(request, "movies/static_page.html", {"page": page})
+
+
+def contact_view(request: HttpRequest) -> HttpResponse:
+    return _render_static_page(request, "contact")
+
+
+def privacy_view(request: HttpRequest) -> HttpResponse:
+    return _render_static_page(request, "privacy")
+
+
+def terms_view(request: HttpRequest) -> HttpResponse:
+    return _render_static_page(request, "terms")
+
+
 def directors_page(request: HttpRequest) -> HttpResponse:
     return render(request, "movies/directors.html", {"director_cards": _director_cards()})
+
+
+def franchise_view(request: HttpRequest, slug: str) -> HttpResponse:
+    franchise, all_movies, api_error = _cached_franchise_payload(slug)
+    if not franchise:
+        return redirect("home")
+
+    page = _safe_page(request.GET.get("page"))
+    movies, current_page, total_pages = _paginate_collection_items(all_movies, page)
+    _attach_wishlist_state(request_user=request.user, movies=movies)
+
+    return render(
+        request,
+        "movies/franchise_detail.html",
+        {
+            "franchise": franchise,
+            "movies": movies,
+            "total_movies": len(all_movies),
+            "api_error": api_error,
+            "current_page": current_page,
+            "total_pages": total_pages,
+            "back_anchor": franchise.get("home_anchor", "universes"),
+            **_pagination_context(request, current_page=current_page, total_pages=total_pages),
+        },
+    )
 
 
 def director_view(request: HttpRequest, slug: str) -> HttpResponse:
@@ -834,6 +1906,7 @@ def genre_view(request: HttpRequest, slug: str) -> HttpResponse:
     query = (request.GET.get("q") or genre["search"]).strip()
     page = _safe_page(request.GET.get("page"))
     context = _catalog_context(
+        request=request,
         search_term=query,
         request_user=request.user,
         page=page,
@@ -849,44 +1922,50 @@ def genre_view(request: HttpRequest, slug: str) -> HttpResponse:
 
 def ai_suggestions(request: HttpRequest) -> HttpResponse:
     prompt = (request.GET.get("query") or "").strip()
+    page = _safe_page(request.GET.get("page"))
+    current_page = page
     movies: list[dict[str, Any]] = []
-    keywords = ""
+    title_seed = (request.GET.get("titles") or "").strip()
+    recommended_titles = _deserialize_ai_titles(title_seed) if title_seed else []
     api_error = None
+    total_pages = 1
 
     if prompt:
-        keywords, fallback_notice = _ai_keyword_search(prompt)
-        movies_payload = _omdb_request({"s": keywords or prompt, "type": "movie"})
+        generation_notice = None
+        fallback_keywords = _extract_keywords(prompt)
+        if not recommended_titles:
+            recommended_titles, generation_notice = _ai_recommend_titles(prompt)
 
-        if movies_payload.get("Response") == "False":
-            api_error = movies_payload.get("Error") or "No AI suggestions were found."
-        else:
-            movies = movies_payload.get("Search", [])
+        movies, current_page, total_pages, api_error = _fetch_ai_recommendations(recommended_titles, page)
+        if not movies:
+            movies, total_pages, fallback_error = _fetch_ai_movies(fallback_keywords or prompt, page)
+            current_page = page
+            if movies:
+                api_error = generation_notice or "CinePick could not verify the AI title list, so it fell back to mood-based keyword matches."
+            elif fallback_error:
+                api_error = fallback_error
+        elif generation_notice and not api_error:
+            api_error = generation_notice
 
-        if fallback_notice and not api_error:
-            api_error = fallback_notice
-
-    normalized_movies = []
-    for movie in movies:
-        normalized_movies.append(
-            {
-                "title": movie.get("Title") or "Untitled",
-                "poster_url": None if movie.get("Poster") in {None, "", "N/A"} else movie.get("Poster"),
-                "release_year": movie.get("Year") or "Unknown",
-                "overview": "AI suggestion results show quick OMDb matches. Open a title on the main catalog for richer details.",
-                "vote_average": 0.0,
-                "imdb_id": movie.get("imdbID"),
-            }
-        )
-    _attach_wishlist_state(request_user=request.user, movies=normalized_movies)
+    _attach_wishlist_state(request_user=request.user, movies=movies)
 
     return render(
         request,
         "movies/ai.html",
         {
             "query": prompt,
-            "keywords": keywords,
-            "movies": normalized_movies,
+            "recommended_titles": recommended_titles,
+            "titles_param": _serialize_ai_titles(recommended_titles),
+            "movies": movies,
             "api_error": api_error,
+            "current_page": current_page,
+            "total_pages": total_pages,
+            **_pagination_context(
+                request,
+                current_page=current_page,
+                total_pages=total_pages,
+                extra_params={"titles": _serialize_ai_titles(recommended_titles)},
+            ),
         },
     )
 

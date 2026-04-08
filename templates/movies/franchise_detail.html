@@ -1,0 +1,462 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .franchise-page {
+        padding: 56px 0 84px;
+    }
+
+    .franchise-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+            radial-gradient(circle at top right, rgba(233, 64, 87, 0.2), transparent 32%),
+            linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+        backdrop-filter: blur(16px);
+        padding: 46px;
+        margin-bottom: 34px;
+    }
+
+    .franchise-kicker {
+        display: inline-flex;
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(248, 245, 240, 0.64);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+    }
+
+    .franchise-title {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
+        line-height: 1.02;
+        color: #f8f5f0;
+    }
+
+    .franchise-description {
+        max-width: 760px;
+        margin: 18px 0 0;
+        color: rgba(248, 245, 240, 0.7);
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+
+    .franchise-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 22px;
+    }
+
+    .franchise-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(248, 245, 240, 0.72);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+    }
+
+    .franchise-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 24px;
+        color: rgba(248, 245, 240, 0.72);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .franchise-note {
+        color: rgba(248, 245, 240, 0.66);
+        font-size: 0.92rem;
+        margin-bottom: 22px;
+    }
+
+    .franchise-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(160px, 1fr));
+        gap: 18px;
+    }
+
+    .franchise-movie-card {
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        min-height: 390px;
+    }
+
+    .franchise-movie-art {
+        position: relative;
+        aspect-ratio: 2/3;
+        background: #1a1a1f;
+        overflow: hidden;
+    }
+
+    .franchise-movie-art::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.72) 100%);
+    }
+
+    .franchise-movie-poster {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .franchise-movie-fallback {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        color: rgba(248, 245, 240, 0.72);
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        text-align: center;
+        line-height: 1.3;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    }
+
+    .franchise-movie-copy {
+        padding: 14px 16px 18px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .franchise-order {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8f5f0;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .franchise-movie-title {
+        margin: 12px 0 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        color: #f8f5f0;
+        line-height: 1.25;
+    }
+
+    .franchise-movie-meta {
+        margin: 6px 0 0;
+        color: rgba(248, 245, 240, 0.62);
+        font-size: 0.78rem;
+    }
+
+    .franchise-movie-overview {
+        margin: 10px 0 0;
+        color: rgba(248, 245, 240, 0.62);
+        font-size: 0.84rem;
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-weight: 300;
+    }
+
+    .franchise-movie-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: auto;
+        padding-top: 14px;
+    }
+
+    .franchise-movie-actions form {
+        width: 100%;
+    }
+
+    .franchise-action-btn {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8f5f0;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 14px;
+    }
+
+    .franchise-action-btn.saved {
+        background: rgba(232, 226, 217, 0.16);
+        color: #e8e2d9;
+    }
+
+    .franchise-action-btn.watched {
+        background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 100%);
+        color: #fdf4ff;
+        border-color: rgba(192, 132, 252, 0.55);
+        box-shadow: 0 10px 24px rgba(139, 92, 246, 0.28);
+    }
+
+    .franchise-action-btn.watched:hover {
+        background: linear-gradient(90deg, #b268ff 0%, #9565ff 100%);
+        border-color: rgba(216, 180, 254, 0.72);
+    }
+
+    .franchise-action-btn.watched:disabled,
+    .franchise-action-btn.saved:disabled {
+        cursor: default;
+        opacity: 1;
+    }
+
+    .franchise-pagination {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 34px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .franchise-pagination-copy {
+        color: rgba(248, 245, 240, 0.66);
+        font-size: 0.86rem;
+    }
+
+    .franchise-pagination-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .franchise-page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(248, 245, 240, 0.88);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .franchise-page-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: #f8f5f0;
+    }
+
+    .franchise-page-link.is-current {
+        background: #f8f5f0;
+        border-color: #f8f5f0;
+        color: #0a0a0b;
+    }
+
+    .franchise-page-link.is-current:hover {
+        background: #f8f5f0;
+        border-color: #f8f5f0;
+        color: #0a0a0b;
+    }
+
+    .franchise-page-gap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        color: rgba(248, 245, 240, 0.56);
+    }
+
+    @media (max-width: 1180px) {
+        .franchise-grid {
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+        }
+    }
+
+    @media (max-width: 860px) {
+        .franchise-grid {
+            grid-template-columns: repeat(2, minmax(160px, 1fr));
+        }
+
+        .franchise-hero {
+            padding: 34px 26px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .franchise-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="franchise-page">
+    <div class="container">
+        <div class="franchise-hero">
+            <span class="franchise-kicker">{{ franchise.kicker }}</span>
+            <h1 class="franchise-title">{{ franchise.name }}</h1>
+            <p class="franchise-description">{{ franchise.hero_copy }}</p>
+            <div class="franchise-meta">
+                <span class="franchise-chip">{{ total_movies }} {{ franchise.count_label|default:"films" }}</span>
+                {% if franchise.collection_badge %}
+                <span class="franchise-chip">{{ franchise.collection_badge }}</span>
+                {% elif franchise.collection_kind == "release_order" %}
+                <span class="franchise-chip">Theatrical release order</span>
+                {% else %}
+                <span class="franchise-chip">Curated feature films</span>
+                {% endif %}
+                <span class="franchise-chip">No extra OMDb title matches</span>
+            </div>
+            <a href="{% url 'home' %}#{{ back_anchor }}" class="franchise-back">Back to Home</a>
+        </div>
+
+        <p class="franchise-note">{{ franchise.description }}</p>
+
+        {% if api_error %}
+        <p class="franchise-note">{{ api_error }}</p>
+        {% endif %}
+
+        {% if movies %}
+        <div class="franchise-grid">
+            {% for movie in movies %}
+            <article class="franchise-movie-card">
+                <div class="franchise-movie-art">
+                    {% if movie.poster_url %}
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="franchise-movie-poster" loading="lazy">
+                    {% else %}
+                    <div class="franchise-movie-fallback">{{ movie.title }}</div>
+                    {% endif %}
+                </div>
+                <div class="franchise-movie-copy">
+                    <div class="franchise-order">
+                        #{{ movie.release_order }}
+                        {% if movie.release_date_label %}
+                        · {{ movie.release_date_label }}
+                        {% elif movie.release_year and movie.release_year != "Unknown" %}
+                        · {{ movie.release_year }}
+                        {% endif %}
+                    </div>
+                    <h2 class="franchise-movie-title">{{ movie.title }}</h2>
+                    <p class="franchise-movie-meta">{{ movie.release_year }}</p>
+                    <p class="franchise-movie-overview">{{ movie.overview }}</p>
+                    <div class="franchise-movie-actions">
+                        {% if movie.imdb_id %}
+                        {% if user.is_authenticated %}
+                        {% if movie.is_watched %}
+                        <button type="button" class="franchise-action-btn watched saved" disabled>Watched</button>
+                        {% else %}
+                        <form method="post" action="{% url 'add_to_watched' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="imdb_id" value="{{ movie.imdb_id }}">
+                            <input type="hidden" name="title" value="{{ movie.title }}">
+                            <input type="hidden" name="poster_url" value="{{ movie.poster_url|default:'' }}">
+                            <input type="hidden" name="release_year" value="{{ movie.release_year }}">
+                            <input type="hidden" name="overview" value="{{ movie.overview }}">
+                            <input type="hidden" name="vote_average" value="{{ movie.vote_average }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="franchise-action-btn watched">Mark as Watched</button>
+                        </form>
+                        {% endif %}
+
+                        {% if movie.is_in_watch_later %}
+                        <button type="button" class="franchise-action-btn saved" disabled>Saved to Wishlist</button>
+                        {% else %}
+                        <form method="post" action="{% url 'add_to_wishlist' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="imdb_id" value="{{ movie.imdb_id }}">
+                            <input type="hidden" name="title" value="{{ movie.title }}">
+                            <input type="hidden" name="poster_url" value="{{ movie.poster_url|default:'' }}">
+                            <input type="hidden" name="release_year" value="{{ movie.release_year }}">
+                            <input type="hidden" name="overview" value="{{ movie.overview }}">
+                            <input type="hidden" name="vote_average" value="{{ movie.vote_average }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="franchise-action-btn">Add to Wishlist</button>
+                        </form>
+                        {% endif %}
+                        {% else %}
+                        <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="franchise-action-btn watched">Mark as Watched</a>
+                        <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="franchise-action-btn">Add to Wishlist</a>
+                        {% endif %}
+                        {% else %}
+                        <button type="button" class="franchise-action-btn watched saved" disabled>Released</button>
+                        <button type="button" class="franchise-action-btn saved" disabled>Metadata Pending</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% if show_pagination %}
+        <div class="franchise-pagination">
+            <div class="franchise-pagination-copy">Page {{ current_page }} of {{ total_pages }}</div>
+            <div class="franchise-pagination-actions">
+                {% if previous_url %}
+                <a href="{{ previous_url }}" class="franchise-page-link">Previous</a>
+                {% endif %}
+
+                {% for item in pagination_items %}
+                {% if item.is_gap %}
+                <span class="franchise-page-gap">...</span>
+                {% else %}
+                <a href="{{ item.url }}" class="franchise-page-link{% if item.is_current %} is-current{% endif %}">{{ item.label }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if next_url %}
+                <a href="{{ next_url }}" class="franchise-page-link">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="franchise-note">{{ franchise.empty_message }}</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

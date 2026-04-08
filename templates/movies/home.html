@@ -1036,7 +1036,9 @@
 
     .pagination-actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
+        justify-content: flex-end;
     }
 
     .page-link {
@@ -1058,10 +1060,36 @@
         transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
+    .page-link.page-number {
+        min-width: 42px;
+        padding: 0 14px;
+    }
+
+    .page-link.is-current {
+        background: var(--white);
+        border-color: var(--white);
+        color: var(--ink);
+    }
+
     .page-link:hover {
         background: var(--glass-md);
         border-color: rgba(255, 255, 255, 0.38);
         color: var(--white);
+    }
+
+    .page-link.is-current:hover {
+        background: var(--white);
+        border-color: var(--white);
+        color: var(--ink);
+    }
+
+    .page-gap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        color: var(--white-muted);
+        font-size: 1rem;
     }
 
     /* ══════════════════════════════
@@ -1399,25 +1427,28 @@
         {% endif %}
         {% endif %}
 
+        {% if show_pagination %}
         <div class="pagination">
             <p class="pagination-copy">Page {{ current_page }} of {{ total_pages }}</p>
             <div class="pagination-actions">
-                {% if has_previous %}
-                {% if is_genre_page %}
-                <a href="?page={{ previous_page }}" class="page-link">← Previous</a>
+                {% if previous_url %}
+                <a href="{{ previous_url }}" class="page-link">Previous</a>
+                {% endif %}
+
+                {% for item in pagination_items %}
+                {% if item.is_gap %}
+                <span class="page-gap">...</span>
                 {% else %}
-                <a href="?q={{ query }}&page={{ previous_page }}" class="page-link">← Previous</a>
+                <a href="{{ item.url }}" class="page-link page-number{% if item.is_current %} is-current{% endif %}">{{ item.label }}</a>
                 {% endif %}
-                {% endif %}
-                {% if has_next %}
-                {% if is_genre_page %}
-                <a href="?page={{ next_page }}" class="page-link">Next →</a>
-                {% else %}
-                <a href="?q={{ query }}&page={{ next_page }}" class="page-link">Next →</a>
-                {% endif %}
+                {% endfor %}
+
+                {% if next_url %}
+                <a href="{{ next_url }}" class="page-link">Next</a>
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 </section>
 
@@ -1640,6 +1671,42 @@
         </div>
     </div>
 </section>
+<section class="section" id="cinepick-picks">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <h2 class="section-heading">CinePick <span class="accent">Picks</span></h2>
+                <p class="section-subtitle" style="margin-top:8px;">
+                    Open handpicked top 10 movie and series rankings in the same dedicated style as the franchise pages.
+                </p>
+            </div>
+        </div>
+
+        <div class="franchise-grid">
+            <a href="{% url 'franchise_view' 'cinepick-best-movies' %}" class="franchise-card" style="--franchise-bg: linear-gradient(135deg, #3f2209 0%, #9b5d15 45%, #1d0f04 100%);">
+                <div class="franchise-copy">
+                    <span class="franchise-tag">Top 10 Movies</span>
+                    <h3 class="franchise-title">CinePick-Best Movies</h3>
+                    <p class="franchise-text">
+                        Interstellar, Oppenheimer, Se7en, The Dark Knight, and more in one ranked movie page.
+                    </p>
+                    <span class="franchise-link">Explore Best Movies</span>
+                </div>
+            </a>
+
+            <a href="{% url 'franchise_view' 'cinepick-best-series' %}" class="franchise-card" style="--franchise-bg: linear-gradient(135deg, #10283a 0%, #1f5f7f 45%, #08131b 100%);">
+                <div class="franchise-copy">
+                    <span class="franchise-tag">Top 10 Series</span>
+                    <h3 class="franchise-title">CinePick-Best Series</h3>
+                    <p class="franchise-text">
+                        top rated series you should watch, from Better Call Saul and Breaking Bad to Dark, Severance, and Succession.
+                    </p>
+                    <span class="franchise-link">Explore Best Series</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
 <section class="section" id="universes">
     <div class="container">
         <div class="section-head">
@@ -1652,25 +1719,25 @@
         </div>
 
         <div class="franchise-grid">
-            <a href="/?q=marvel" class="franchise-card" style="--franchise-bg: linear-gradient(135deg, #4a0f13 0%, #8f171e 45%, #25070a 100%);">
+            <a href="{% url 'franchise_view' 'marvel' %}" class="franchise-card" style="--franchise-bg: linear-gradient(135deg, #4a0f13 0%, #8f171e 45%, #25070a 100%);">
                 <div class="franchise-copy">
                     <span class="franchise-tag">Cinematic Universe</span>
-                    <h3 class="franchise-title">Marvel</h3>
+                    <h3 class="franchise-title">Marvel Movies</h3>
                     <p class="franchise-text">
-                        Avengers, Guardians, Spider-Man energy, and blockbuster superhero stories in one lane.
+                        Released Marvel movies only, curated in proper theatrical order without extra OMDb results.
                     </p>
-                    <span class="franchise-link">Explore Marvel</span>
+                    <span class="franchise-link">Explore Marvel Movies</span>
                 </div>
             </a>
 
-            <a href="/?q=dc+comics" class="franchise-card" style="--franchise-bg: linear-gradient(135deg, #0e1836 0%, #1e3f86 45%, #09111f 100%);">
+            <a href="{% url 'franchise_view' 'dc' %}" class="franchise-card" style="--franchise-bg: linear-gradient(135deg, #0e1836 0%, #1e3f86 45%, #09111f 100%);">
                 <div class="franchise-copy">
-                    <span class="franchise-tag">Comic Legends</span>
-                    <h3 class="franchise-title">DC</h3>
+                    <span class="franchise-tag">Cinematic Universe</span>
+                    <h3 class="franchise-title">DC Movies</h3>
                     <p class="franchise-text">
-                        Batman, Superman, Joker, and darker heroic worlds with mythic scale and edge.
+                        Released DC movies only, curated in theatrical release order instead of a loose keyword search.
                     </p>
-                    <span class="franchise-link">Explore DC</span>
+                    <span class="franchise-link">Explore DC Movies</span>
                 </div>
             </a>
         </div>
@@ -1689,36 +1756,36 @@
         </div>
 
         <div class="indian-grid">
-            <a href="/?q=bollywood" class="indian-card" style="--indian-bg: linear-gradient(135deg, #5b2409 0%, #b35317 45%, #2d1105 100%);">
+            <a href="{% url 'franchise_view' 'bollywood' %}" class="indian-card" style="--indian-bg: linear-gradient(135deg, #5b2409 0%, #b35317 45%, #2d1105 100%);">
                 <div class="indian-copy">
                     <span class="indian-tag">Hindi Cinema</span>
-                    <h3 class="indian-title">Bollywood</h3>
+                    <h3 class="indian-title">Bollywood Movies</h3>
                     <p class="indian-text">
-                        Big emotions, music, romance, family drama, and star-led blockbusters from Hindi film.
+                        Curated Bollywood movies from Hindi cinema instead of literal title matches for the word Bollywood.
                     </p>
-                    <span class="indian-link">Explore Bollywood</span>
+                    <span class="indian-link">Explore Bollywood Movies</span>
                 </div>
             </a>
 
-            <a href="/?q=telugu+tamil+movie" class="indian-card" style="--indian-bg: linear-gradient(135deg, #12361d 0%, #1f7a4f 45%, #081b10 100%);">
+            <a href="{% url 'franchise_view' 'south-indian' %}" class="indian-card" style="--indian-bg: linear-gradient(135deg, #12361d 0%, #1f7a4f 45%, #081b10 100%);">
                 <div class="indian-copy">
                     <span class="indian-tag">South Indian</span>
-                    <h3 class="indian-title">Tamil &amp; Telugu</h3>
+                    <h3 class="indian-title">Tamil &amp; Telugu Movies</h3>
                     <p class="indian-text">
-                        High-energy action, larger-than-life heroes, and stylish storytelling from southern cinema.
+                        Curated Tamil and Telugu feature films instead of loose keyword matches from raw search.
                     </p>
-                    <span class="indian-link">Explore South Indian</span>
+                    <span class="indian-link">Explore Tamil &amp; Telugu Movies</span>
                 </div>
             </a>
 
-            <a href="/?q=indian+drama+movie" class="indian-card" style="--indian-bg: linear-gradient(135deg, #3d1d55 0%, #6b2f9c 45%, #1a0b24 100%);">
+            <a href="{% url 'franchise_view' 'indian-drama' %}" class="indian-card" style="--indian-bg: linear-gradient(135deg, #3d1d55 0%, #6b2f9c 45%, #1a0b24 100%);">
                 <div class="indian-copy">
                     <span class="indian-tag">Critically Loved</span>
-                    <h3 class="indian-title">Indian Drama</h3>
+                    <h3 class="indian-title">Indian Drama Movies</h3>
                     <p class="indian-text">
-                        Character-rich stories, grounded performances, and emotional films that stay with you.
+                        Curated Indian drama films across Hindi and regional cinema without unrelated title matches.
                     </p>
-                    <span class="indian-link">Explore Indian Drama</span>
+                    <span class="indian-link">Explore Indian Drama Movies</span>
                 </div>
             </a>
         </div>

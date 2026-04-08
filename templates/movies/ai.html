@@ -538,6 +538,71 @@
         line-height: 1.8;
     }
 
+    .ai-pagination {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .ai-pagination-copy {
+        color: var(--ai-muted);
+        font-size: 0.88rem;
+    }
+
+    .ai-pagination-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .ai-page-link,
+    .ai-page-gap {
+        min-height: 44px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ai-page-link {
+        min-width: 44px;
+        padding: 0 16px;
+        border: 1px solid var(--ai-border-strong);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ai-text);
+        font-size: 0.84rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.18s, border-color 0.18s, background 0.18s;
+    }
+
+    .ai-page-link:hover {
+        transform: translateY(-2px);
+        border-color: rgba(216, 180, 254, 0.5);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .ai-page-link.is-current {
+        background: linear-gradient(90deg, var(--ai-purple) 0%, var(--ai-purple-2) 100%);
+        border-color: rgba(192, 132, 252, 0.5);
+        box-shadow: 0 14px 30px rgba(124, 58, 237, 0.28);
+    }
+
+    .ai-page-link.is-current:hover {
+        transform: none;
+        background: linear-gradient(90deg, var(--ai-purple) 0%, var(--ai-purple-2) 100%);
+    }
+
+    .ai-page-gap {
+        min-width: 28px;
+        color: var(--ai-dim);
+        font-size: 1rem;
+    }
+
     @media (max-width: 1080px) {
         .ai-hero {
             grid-template-columns: 1fr;
@@ -569,6 +634,11 @@
             justify-items: start;
         }
 
+        .ai-pagination {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
         .ai-section-head {
             align-items: start;
             flex-direction: column;
@@ -589,7 +659,7 @@
 
                 <h1 class="ai-title">Describe a <span class="accent">vibe</span>. Let CinePick find the movie.</h1>
                 <p class="ai-copy">
-                    Type a mood, theme, or story shape in plain language. CinePick turns that into search-ready keywords and surfaces quick movie matches you can save right away.
+                    Type a mood, theme, or story shape in plain language. CinePick uses AI to recommend actual movie titles that fit the feeling you want.
                 </p>
 
                 <form method="get" class="ai-form">
@@ -633,7 +703,7 @@
                     <div class="ai-side-label">How It Works</div>
                     <h2 class="ai-side-title">A better starting point than guessing titles.</h2>
                     <p class="ai-side-copy">
-                        You describe the feeling. CinePick translates it into simpler discovery terms and sends those to OMDb for fast matches.
+                        You describe the feeling. CinePick asks AI for matching movie titles, then pulls those titles into the app so you can browse and save them quickly.
                     </p>
                 </div>
 
@@ -643,8 +713,8 @@
                         <span>Use mood, pacing, genre, character energy, or the kind of ending you want.</span>
                     </div>
                     <div class="ai-side-item">
-                        <strong>2. AI extracts keywords</strong>
-                        <span>The prompt is condensed into a shorter search phrase that works better with OMDb.</span>
+                        <strong>2. AI recommends titles</strong>
+                        <span>The mood is turned into a shortlist of movie recommendations instead of generic search terms.</span>
                     </div>
                     <div class="ai-side-item">
                         <strong>3. Save fast</strong>
@@ -654,7 +724,7 @@
             </aside>
         </div>
 
-        {% if keywords %}
+        {% if recommended_titles %}
         <div class="ai-summary">
             <div class="ai-summary-badge">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -662,10 +732,10 @@
                 </svg>
             </div>
             <div>
-                <div class="ai-summary-label">AI Keywords</div>
-                <div class="ai-summary-value">{{ keywords }}</div>
+                <div class="ai-summary-label">AI Recommendation Seed</div>
+                <div class="ai-summary-value">{{ recommended_titles|join:", " }}</div>
             </div>
-            <div class="ai-summary-count">{{ movies|length }} result{{ movies|length|pluralize }}</div>
+            <div class="ai-summary-count">Page {{ current_page }} of {{ total_pages }}</div>
         </div>
         {% endif %}
 
@@ -712,7 +782,7 @@
                     </span>
 
                     <h3 class="ai-card-title">{{ movie.title }}</h3>
-                    <div class="ai-card-year">AI match from OMDb</div>
+                    <div class="ai-card-year">AI recommendation for your mood</div>
                     <p class="ai-card-overview">{{ movie.overview }}</p>
 
                     <div class="ai-actions">
@@ -789,6 +859,29 @@
             </article>
             {% endfor %}
         </div>
+
+        {% if show_pagination %}
+        <div class="ai-pagination">
+            <div class="ai-pagination-copy">Page {{ current_page }} of {{ total_pages }}</div>
+            <div class="ai-pagination-actions">
+                {% if previous_url %}
+                <a href="{{ previous_url }}" class="ai-page-link">Previous</a>
+                {% endif %}
+
+                {% for item in pagination_items %}
+                {% if item.is_gap %}
+                <span class="ai-page-gap">...</span>
+                {% else %}
+                <a href="{{ item.url }}" class="ai-page-link{% if item.is_current %} is-current{% endif %}">{{ item.label }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if next_url %}
+                <a href="{{ next_url }}" class="ai-page-link">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="ai-empty">
             <h3>Turn a feeling into a film list.</h3>

@@ -1111,6 +1111,7 @@
         <a href="{% url 'home' %}#genres">Genres</a>
         <a href="{% url 'directors' %}">Directors</a>
         <a href="{% url 'about' %}">About Us</a>
+        <a href="{% url 'contact' %}">Contact</a>
         <a href="{% url 'wishlist' %}">Wishlist</a>
       </nav>
 
@@ -1166,9 +1167,9 @@
       <p class="footer-copy">&copy; 2026 CinePick. Your personal movie curator.</p>
       <div class="footer-links">
         <a href="{% url 'about' %}">About Us</a>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Contact</a>
+        <a href="{% url 'privacy' %}">Privacy</a>
+        <a href="{% url 'terms' %}">Terms</a>
+        <a href="{% url 'contact' %}">Contact</a>
       </div>
     </div>
   </footer>
